@@ -1,23 +1,6 @@
 /* eslint-disable import/extensions */
-import { normalizeDate } from './helpers/utils.js';
 
-/*async function getDataWorldByDate(startDate, endDate) {
-  try {
-    const normalizedStartDate = normalizeDate(startDate);
-    const normalizedEndDate = normalizeDate(endDate);
-
-    const res = await fetch(`https://api.covid19api.com/world?from=${normalizedStartDate}T00:00:00Z&to=${normalizedEndDate}T00:00:00Z`);
-    if (res.status === 200) {
-      const data = await res.json();
-      return data.sort((a, b) => a.TotalDeaths - b.TotalDeaths);
-    }
-    return res;
-  } catch (err) {
-    return err;
-  }
-}*/
-
-async function getDataWorldByLastDays(dayQuantity = 'all') {
+async function getWorldDataByLastDays(dayQuantity = 'all') {
   try {
     const res = await fetch(`https://disease.sh/v3/covid-19/historical/all?lastdays=${dayQuantity}`);
     if (res.status === 200) {
@@ -29,4 +12,16 @@ async function getDataWorldByLastDays(dayQuantity = 'all') {
   }
 }
 
-export { getDataWorldByLastDays };
+async function getCountryDataByLastDays(country, dayQuantity = 'all') {
+  try {
+    const res = await fetch(`https://disease.sh/v3/covid-19/historical/${country}?lastdays=${dayQuantity}`);
+    if (res.status === 200) {
+      return res.json();
+    }
+    return res;
+  } catch (err) {
+    return err;
+  }
+}
+
+export { getWorldDataByLastDays, getCountryDataByLastDays };

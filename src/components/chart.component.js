@@ -2,6 +2,15 @@
 /* import Chart from 'chart.js'; */
 import { normalizeDate } from '../helpers/utils.js';
 
+const chartStyles = {
+  mainColor: 'rgba(255, 170, 0, 1)',
+  secondaryColor: 'rgba(255, 170, 0, .8)',
+  tooltipsBg: 'rgba(255, 255, 255, 0.8)',
+  tooltipFontColor: 'rgba(29, 29, 29, 1)',
+  gridLinesColor: 'rgba(61, 61, 61, 1)',
+  ticksColor: 'rgb(149, 149, 149)',
+};
+
 export default class ChartComponent {
   constructor(isWorld, statisticsMode) {
     this.chartData = [];
@@ -9,7 +18,7 @@ export default class ChartComponent {
     this.chart = '';
     this.chartInfoPanel = '';
     this.isWorld = true; // TODO
-    this.statisticsModes = ['daily cases', 'daily recoveries', 'daily deaths'];
+    this.statisticsModes = ['Daily Cases', 'Daily Recoveries', 'Daily Deaths'];
     this.statisticsModeNumber = 0; // TODO
   }
 
@@ -35,7 +44,7 @@ export default class ChartComponent {
     chartNavigation.append(this.chartInfoPanel);
     chartNavigation.append(nextNavigation);
 
-    const charDataToShow = this.getWorldDataForDailyCases();
+    const charDataToShow = this.getDailyData('cases');
 
     this.chartContainer.append(this.generateChart(charDataToShow));
     this.chartContainer.append(chartNavigation);
@@ -64,7 +73,7 @@ export default class ChartComponent {
     this.chartData = chartData;
   }
 
-  updateIsWorld(isWorld) {
+  updateChartMode(isWorld) {
     this.isWorld = isWorld;
   }
 
@@ -79,20 +88,14 @@ export default class ChartComponent {
   getDataToShow() {
     let charDataToShow = [];
     switch (this.statisticsModes[this.statisticsModeNumber]) {
-      case 'daily cases':
-        charDataToShow = this.isWorld
-          ? this.getWorldDataForDailyCases()
-          : this.getCountryDataForDailyCases();
+      case 'Daily Cases':
+        charDataToShow = this.getDailyData('cases');
         break;
-      case 'daily recoveries':
-        charDataToShow = this.isWorld
-          ? this.getWorldDataForDailyRecoveries()
-          : this.getWorldDataForDailyRecoveries(); // TODO
+      case 'Daily Recoveries':
+        charDataToShow = this.getDailyData('recovered');
         break;
-      case 'daily deaths':
-        charDataToShow = this.isWorld
-          ? this.getWorldDataForDailyDeaths()
-          : this.getWorldDataForDailyDeaths(); // TODO
+      case 'Daily Deaths':
+        charDataToShow = this.getDailyData('deaths');
         break;
       default:
         break;
@@ -101,41 +104,17 @@ export default class ChartComponent {
     return charDataToShow;
   }
 
-  getWorldDataForDailyCases() {
+  getDailyData(parameter) {
     let prevItem = 0;
-    return Object.entries(this.chartData.cases).map((item) => {
+    return Object.entries(this.chartData[parameter]).map((item) => {
       const [date, quantity] = item;
       const itemData = { x: new Date(date), y: quantity - prevItem };
       prevItem = quantity;
+      if (itemData.y < 0) {
+        console.log(itemData.y);
+      }
       return itemData;
     });
-  }
-
-  getWorldDataForDailyRecoveries() {
-    let prevItem = 0;
-    return Object.entries(this.chartData.recovered).map((item) => {
-      const [date, quantity] = item;
-      const itemData = { x: new Date(date), y: quantity - prevItem };
-      prevItem = quantity;
-      return itemData;
-    });
-  }
-
-  getWorldDataForDailyDeaths() {
-    let prevItem = 0;
-    return Object.entries(this.chartData.deaths).map((item) => {
-      const [date, quantity] = item;
-      const itemData = { x: new Date(date), y: quantity - prevItem };
-      prevItem = quantity;
-      return itemData;
-    });
-  }
-
-  getCountryDataForDailyCases() {
-    if (!Array.isArray(this.chartData)) {
-      console.log('getChartDataForDailyCases error'); // TODO
-    }
-    return this.chartData.map((item) => ({ x: item.Date, y: item.Confirmed }));
   }
 
   generateChart(charDataToShow) {
@@ -146,8 +125,8 @@ export default class ChartComponent {
       data: {
         datasets: [{
           data: charDataToShow,
-          backgroundColor: 'rgba(255, 170, 0, 1)',
-          hoverBackgroundColor: 'rgba(255, 170, 0, .8)',
+          backgroundColor: chartStyles.mainColor,
+          hoverBackgroundColor: chartStyles.secondaryColor,
           barPercentage: 1,
           barThickness: 'flex',
           categoryPercentage: 1,
@@ -160,6 +139,7 @@ export default class ChartComponent {
             ticks: {
               beginAtZero: true,
               stepSize: 200000,
+              fontColor: chartStyles.ticksColor,
               callback: (value) => {
                 const ranges = [
                   { divider: 1e6, suffix: 'M' },
@@ -176,6 +156,10 @@ export default class ChartComponent {
                 return formatNumber(value);
               },
             },
+            gridLines: {
+              borderDash: [4, 3],
+              color: chartStyles.gridLinesColor,
+            },
           }],
           xAxes: [{
             type: 'time',
@@ -184,14 +168,20 @@ export default class ChartComponent {
             },
             ticks: {
               beginAtZero: true,
+              fontColor: chartStyles.ticksColor,
+            },
+            gridLines: {
+              borderDash: [4, 3],
+              color: chartStyles.gridLinesColor,
+              offsetGridLines: true,
             },
           }],
         },
         tooltips: {
-          backgroundColor: 'rgba(255, 255, 255, 0.8)',
-          borderColor: 'rgba(255, 170, 0, 1)',
+          backgroundColor: chartStyles.tooltipsBg,
+          borderColor: chartStyles.mainColor,
           borderWidth: 1,
-          titleFontColor: 'rgba(29, 29, 29, 1)',
+          titleFontColor: chartStyles.tooltipFontColor,
           callbacks: {
             title(tooltipItem) {
               let label = '';

@@ -1,7 +1,7 @@
 /* eslint-disable import/extensions */
 import MapComponent from './map.component.js';
 import ChartComponent from './chart.component.js';
-import { getDataWorldByLastDays } from '../service.js';
+import { getWorldDataByLastDays, getCountryDataByLastDays } from '../service.js';
 
 export default class App {
   constructor() {
@@ -15,8 +15,12 @@ export default class App {
 
     appContainer.append(this.mapComponent.render());
 
-    this.chartData = await getDataWorldByLastDays();
-    this.chartComponent.updateChartData(this.chartData);
+    this.chartData = await getWorldDataByLastDays(); //for world
+    this.chartComponent.updateChartData(this.chartData); //for world
+
+    //this.chartData = await getCountryDataByLastDays('poland'); //for country
+    //this.chartComponent.updateChartData(this.chartData.timeline); //for country
+
     appContainer.append(this.chartComponent.render());
 
     return appContainer;
