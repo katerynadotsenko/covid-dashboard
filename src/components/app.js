@@ -1,14 +1,12 @@
 /* eslint-disable import/extensions */
 import MapComponent from './map.component.js';
 import ChartComponent from './chart.component.js';
-import { getDataWorldByDate } from '../service.js';
+import { getDataWorldByLastDays } from '../service.js';
 
 export default class App {
   constructor() {
-    this.chartStartDate = '2020-04-14T00:00:00Z';
-    this.chartStartDate = new Date();
     this.mapComponent = new MapComponent();
-    this.chartComponent = new ChartComponent(this.chartStartDate);
+    this.chartComponent = new ChartComponent();
     this.chartData = [];
   }
 
@@ -17,8 +15,8 @@ export default class App {
 
     appContainer.append(this.mapComponent.render());
 
-    this.chartData = await getDataWorldByDate(this.chartStartDate, this.chartStartDate);
-    this.chartComponent.setCharData(this.chartData);
+    this.chartData = await getDataWorldByLastDays();
+    this.chartComponent.updateChartData(this.chartData);
     appContainer.append(this.chartComponent.render());
 
     return appContainer;

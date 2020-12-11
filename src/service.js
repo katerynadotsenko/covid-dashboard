@@ -1,7 +1,7 @@
 /* eslint-disable import/extensions */
 import { normalizeDate } from './helpers/utils.js';
 
-async function getDataWorldByDate(startDate, endDate) {
+/*async function getDataWorldByDate(startDate, endDate) {
   try {
     const normalizedStartDate = normalizeDate(startDate);
     const normalizedEndDate = normalizeDate(endDate);
@@ -15,6 +15,18 @@ async function getDataWorldByDate(startDate, endDate) {
   } catch (err) {
     return err;
   }
+}*/
+
+async function getDataWorldByLastDays(dayQuantity = 'all') {
+  try {
+    const res = await fetch(`https://disease.sh/v3/covid-19/historical/all?lastdays=${dayQuantity}`);
+    if (res.status === 200) {
+      return res.json();
+    }
+    return res;
+  } catch (err) {
+    return err;
+  }
 }
 
-export { getDataWorldByDate };
+export { getDataWorldByLastDays };
