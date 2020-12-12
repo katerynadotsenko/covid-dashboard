@@ -17,4 +17,24 @@ async function getDataWorldByDate(startDate, endDate) {
   }
 }
 
-export { getDataWorldByDate };
+async function getSummary() {
+  try {
+    const summary = await (await fetch('https://api.covid19api.com/summary')).json();
+    const flags = await (await fetch('https://restcountries.eu/rest/v2/all?fields=name;population;flag;alpha2Code')).json();
+    summary.Countries.forEach((c, idx) => {
+      const flagResult = flags.find(i => i.alpha2Code === c.CountryCode);
+      if (flagResult) {
+        c.flag = flagResult.flag;
+        c.population = flagResult.population;
+      }
+      else {
+        delete summary.Countries[idx];
+      }
+    });
+    return summary;
+  } catch (err) {
+    return err;
+  }
+}
+
+export { getDataWorldByDate, getSummary };
