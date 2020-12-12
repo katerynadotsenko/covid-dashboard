@@ -4,7 +4,6 @@ import { normalizeDate } from '../helpers/utils.js';
 
 const chartStyles = {
   mainColor: 'rgba(255, 170, 0, 1)',
-  secondaryColor: 'rgba(255, 170, 0, .8)',
   tooltipsBg: 'rgba(255, 255, 255, 0.8)',
   tooltipFontColor: 'rgba(29, 29, 29, 1)',
   gridLinesColor: 'rgba(61, 61, 61, 1)',
@@ -12,12 +11,14 @@ const chartStyles = {
 };
 
 export default class ChartComponent {
-  constructor(isWorld, statisticsMode) {
+  constructor(isWorld, isAbsolute, population) {
     this.chartData = [];
     this.chartContainer = '';
     this.chart = '';
     this.chartInfoPanel = '';
     this.isWorld = true; // TODO
+    this.isAbsolute = false; // TODO
+    this.population = 38437239; // TODO
     this.statisticsModes = ['Daily Cases', 'Daily Recoveries', 'Daily Deaths'];
     this.statisticsModeNumber = 0; // TODO
   }
@@ -56,15 +57,16 @@ export default class ChartComponent {
 
   bindNavigationListeners(navDirection) {
     const maxLength = this.statisticsModes.length - 1;
+    const extraText = this.isAbsolute ? 'per 100,000 population' : '';
     if (navDirection === 'next') {
       if (this.statisticsModeNumber < maxLength) {
         this.statisticsModeNumber += 1;
-        this.chartInfoPanel.innerText = this.statisticsModes[this.statisticsModeNumber];
+        this.chartInfoPanel.innerText = `${this.statisticsModes[this.statisticsModeNumber]} ${extraText}`;
         this.updateChart(this.getDataToShow());
       }
     } else if (this.statisticsModeNumber > 0) {
       this.statisticsModeNumber -= 1;
-      this.chartInfoPanel.innerText = this.statisticsModes[this.statisticsModeNumber];
+      this.chartInfoPanel.innerText = `${this.statisticsModes[this.statisticsModeNumber]} ${extraText}`;
       this.updateChart(this.getDataToShow());
     }
   }
@@ -108,7 +110,10 @@ export default class ChartComponent {
     let prevItem = 0;
     return Object.entries(this.chartData[parameter]).map((item) => {
       const [date, quantity] = item;
-      const itemData = { x: new Date(date), y: quantity - prevItem };
+      const dailyQuantity = this.isAbsolute
+        ? (((quantity - prevItem) / this.population) * 100000).toFixed(3)
+        : quantity - prevItem;
+      const itemData = { x: new Date(date), y: dailyQuantity };
       prevItem = quantity;
       if (itemData.y < 0) {
         console.log(itemData.y);
@@ -126,7 +131,6 @@ export default class ChartComponent {
         datasets: [{
           data: charDataToShow,
           backgroundColor: chartStyles.mainColor,
-          hoverBackgroundColor: chartStyles.secondaryColor,
           barPercentage: 1,
           barThickness: 'flex',
           categoryPercentage: 1,
