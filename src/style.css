@@ -12,9 +12,12 @@
 }
 
 canvas.chartjs-render-monitor {
-    background: #222222;
     color: var(--text);
     background-color: var(--bg);
+}
+
+.right-container {
+    width: 50%;
 }
 
 .app-container {

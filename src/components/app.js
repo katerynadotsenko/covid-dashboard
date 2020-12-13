@@ -18,8 +18,8 @@ export default class App {
   async init() {
     const appContainer = document.querySelector('.app-container');
 
-    this.getSummary = await getSummary();
-    appContainer.append(this.countryListComponent.render(this.getSummary));
+    //this.getSummary = await getSummary();
+    //appContainer.append(this.countryListComponent.render(this.getSummary));
 
     appContainer.append(this.mapComponent.render());
 
@@ -32,7 +32,7 @@ export default class App {
     //this.chartData = await getCountryDataByLastDays('poland'); //for country
     //this.chartComponent.updateChartData(this.chartData.timeline); //for country
 
-    rightContainer.append(this.statisticsComponent.render(this.getSummary));
+    //rightContainer.append(this.statisticsComponent.render(this.getSummary));
     rightContainer.append(this.chartComponent.render());
     appContainer.append(rightContainer);
 

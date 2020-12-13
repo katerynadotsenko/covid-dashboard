@@ -2,25 +2,27 @@
 /* import Chart from 'chart.js'; */
 import { normalizeDate } from '../helpers/utils.js';
 
-const chartStyles = {
-  mainColor: 'rgba(255, 170, 0, 1)',
-  tooltipsBg: 'rgba(255, 255, 255, 0.8)',
-  tooltipFontColor: 'rgba(29, 29, 29, 1)',
-  gridLinesColor: 'rgba(61, 61, 61, 1)',
-  ticksColor: 'rgb(149, 149, 149)',
-};
-
 export default class ChartComponent {
-  constructor(isWorld, isAbsolute, population) {
+  constructor(isWorldMode, isAbsoluteData, isEntirePeriodData, population) {
     this.chartData = [];
     this.chartContainer = '';
     this.chart = '';
+    this.chartConfig = '';
     this.chartInfoPanel = '';
-    this.isWorld = true; // TODO
-    this.isAbsolute = false; // TODO
+    this.isWorldMode = true; // TODO
+    this.isAbsoluteData = false; // TODO
+    this.isEntirePeriodData = false; // TODO
     this.population = 38437239; // TODO
     this.statisticsModes = ['Daily Cases', 'Daily Recoveries', 'Daily Deaths'];
     this.statisticsModeNumber = 0; // TODO
+    this.chartStyles = {
+      mainColor: 'rgba(255, 170, 0, 1)',
+      tooltipsBg: 'rgba(255, 255, 255, 0.8)',
+      tooltipFontColor: 'rgba(29, 29, 29, 1)',
+      gridLinesColor: 'rgba(61, 61, 61, 1)',
+      ticksColor: 'rgb(149, 149, 149)',
+      transparent: 'rgb(0, 0, 0, 0)',
+    };
   }
 
   render() {
@@ -57,7 +59,7 @@ export default class ChartComponent {
 
   bindNavigationListeners(navDirection) {
     const maxLength = this.statisticsModes.length - 1;
-    const extraText = this.isAbsolute ? 'per 100,000 population' : '';
+    const extraText = this.isAbsoluteData ? 'per 100,000 population' : '';
     if (navDirection === 'next') {
       if (this.statisticsModeNumber < maxLength) {
         this.statisticsModeNumber += 1;
@@ -75,11 +77,23 @@ export default class ChartComponent {
     this.chartData = chartData;
   }
 
-  updateChartMode(isWorld) {
-    this.isWorld = isWorld;
+  updateChartMode(isWorldMode) {
+    this.isWorldMode = isWorldMode;
+  }
+
+  changePeriodDataMode(isEntirePeriodData) {
+    this.isEntirePeriodData = isEntirePeriodData;
+  }
+
+  changeChartType() {
+    this.chart.destroy();
+    const chartCanvas = this.chartContainer.querySelector('.chart-canvas');
+    const chartType = this.isEntirePeriodData ? 'line' : 'bar';
+    this.chart = new Chart(chartCanvas, this.generateChartConfig(chartType, null));
   }
 
   updateChart(chartData) {
+    //this.changeChartType();
     this.chart.data.datasets[0].data = chartData;
     this.chart.update({
       duration: 300,
@@ -110,10 +124,11 @@ export default class ChartComponent {
     let prevItem = 0;
     return Object.entries(this.chartData[parameter]).map((item) => {
       const [date, quantity] = item;
-      const dailyQuantity = this.isAbsolute
-        ? (((quantity - prevItem) / this.population) * 100000).toFixed(3)
-        : quantity - prevItem;
-      const itemData = { x: new Date(date), y: dailyQuantity };
+      const quantityToCalc = this.isEntirePeriodData ? quantity : quantity - prevItem;
+      const resultQuantity = this.isAbsoluteData
+        ? ((quantityToCalc / this.population) * 100000).toFixed(3)
+        : quantityToCalc;
+      const itemData = { x: new Date(date), y: resultQuantity };
       prevItem = quantity;
       if (itemData.y < 0) {
         console.log(itemData.y);
@@ -124,17 +139,29 @@ export default class ChartComponent {
 
   generateChart(charDataToShow) {
     const chartCanvas = document.createElement('canvas');
+    chartCanvas.classList.add('chart-canvas');
     chartCanvas.getContext('2d');
-    this.chart = new Chart(chartCanvas, {
-      type: 'bar',
+    this.chart = new Chart(chartCanvas, this.generateChartConfig('bar', charDataToShow));
+    return chartCanvas;
+  }
+
+  generateChartConfig(chartType, charDataToShow) {
+    const datasets = [{
+      data: charDataToShow,
+      backgroundColor: this.chartStyles.mainColor,
+      barPercentage: 1,
+      barThickness: 'flex',
+      categoryPercentage: 1,
+    }];
+    if (this.isEntirePeriodData) {
+      datasets[0].backgroundColor = this.chartStyles.transparent;
+      datasets[0].borderColor = this.chartStyles.mainColor;
+      datasets[0].pointBackgroundColor = this.chartStyles.mainColor;
+    }
+    return {
+      type: `${chartType}`,
       data: {
-        datasets: [{
-          data: charDataToShow,
-          backgroundColor: chartStyles.mainColor,
-          barPercentage: 1,
-          barThickness: 'flex',
-          categoryPercentage: 1,
-        }],
+        datasets,
       },
       options: {
         legend: false,
@@ -143,7 +170,7 @@ export default class ChartComponent {
             ticks: {
               beginAtZero: true,
               stepSize: 200000,
-              fontColor: chartStyles.ticksColor,
+              fontColor: this.chartStyles.ticksColor,
               callback: (value) => {
                 const ranges = [
                   { divider: 1e6, suffix: 'M' },
@@ -162,7 +189,7 @@ export default class ChartComponent {
             },
             gridLines: {
               borderDash: [4, 3],
-              color: chartStyles.gridLinesColor,
+              color: this.chartStyles.gridLinesColor,
             },
           }],
           xAxes: [{
@@ -172,25 +199,24 @@ export default class ChartComponent {
             },
             ticks: {
               beginAtZero: true,
-              fontColor: chartStyles.ticksColor,
+              fontColor: this.chartStyles.ticksColor,
             },
             gridLines: {
               borderDash: [4, 3],
-              color: chartStyles.gridLinesColor,
+              color: this.chartStyles.gridLinesColor,
               offsetGridLines: true,
             },
           }],
         },
         tooltips: {
-          backgroundColor: chartStyles.tooltipsBg,
-          borderColor: chartStyles.mainColor,
+          backgroundColor: this.chartStyles.tooltipsBg,
+          borderColor: this.chartStyles.mainColor,
           borderWidth: 1,
-          titleFontColor: chartStyles.tooltipFontColor,
+          titleFontColor: this.chartStyles.tooltipFontColor,
           callbacks: {
             title(tooltipItem) {
               let label = '';
               const date = new Date(tooltipItem[0].label);
-
               label += normalizeDate(date);
               return `${label}: ${tooltipItem[0].value}`;
             },
@@ -200,7 +226,6 @@ export default class ChartComponent {
           },
         },
       },
-    });
-    return chartCanvas;
+    };
   }
 }
