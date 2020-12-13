@@ -81,6 +81,11 @@ export default class ChartComponent {
     this.isWorldMode = isWorldMode;
   }
 
+  updateChartByActiveCountry(chartData) {
+    this.updateChartData(chartData);
+    this.updateChart(this.getDataToShow());
+  }
+
   changePeriodDataMode(isEntirePeriodData) {
     this.isEntirePeriodData = isEntirePeriodData;
   }

@@ -16,9 +16,7 @@ canvas.chartjs-render-monitor {
     background-color: var(--bg);
 }
 
-.right-container {
-    width: 50%;
-}
+.right-container {}
 
 .app-container {
     display: flex;
