@@ -18,6 +18,8 @@ canvas.chartjs-render-monitor {
 }
 
 .app-container {
+    display: flex;
+    justify-content: space-between;
     background-color: var(--wrapper-bg);
 }
 
@@ -33,7 +35,7 @@ canvas.chartjs-render-monitor {
     background-color: var(--bg);
 }
 
-.menues > div{
+.menues>div {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -57,7 +59,7 @@ canvas.chartjs-render-monitor {
     box-sizing: border-box;
 }
 
-.country > * {
+.country>* {
     margin: 0 5px;
 }
 
@@ -77,9 +79,7 @@ canvas.chartjs-render-monitor {
     color: var(--confirmed);
 }
 
-.country_name {
-
-}
+.country_name {}
 
 .cur {
     background-color: var(--cur);
@@ -94,7 +94,7 @@ span {
     background: transparent;
 }
 
-.button-arrow{
+.button-arrow {
     width: 52px;
     height: 52px;
     border: 2px solid var(--text);
@@ -104,7 +104,7 @@ span {
     font-weight: 900;
 }
 
-.button-arrow:hover{
+.button-arrow:hover {
     background: var(--cur);
     border-color: var(--cur);
     cursor: pointer;

@@ -18,19 +18,23 @@ export default class App {
   async init() {
     const appContainer = document.querySelector('.app-container');
 
-    appContainer.append(this.mapComponent.render());
-
     this.getSummary = await getSummary();
     appContainer.append(this.countryListComponent.render(this.getSummary));
 
-    appContainer.append(this.statisticsComponent.render(this.getSummary));
+    appContainer.append(this.mapComponent.render());
+
+    const rightContainer = document.createElement('div');
+    rightContainer.classList.add('right-container');
 
     this.chartData = await getWorldDataByLastDays(); //for world
     this.chartComponent.updateChartData(this.chartData); //for world
 
     //this.chartData = await getCountryDataByLastDays('poland'); //for country
     //this.chartComponent.updateChartData(this.chartData.timeline); //for country
-    appContainer.append(this.chartComponent.render());
+
+    rightContainer.append(this.statisticsComponent.render(this.getSummary));
+    rightContainer.append(this.chartComponent.render());
+    appContainer.append(rightContainer);
 
     return appContainer;
   }
