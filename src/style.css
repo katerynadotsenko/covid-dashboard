@@ -1,8 +1,111 @@
 * {
+    --wrapper-bg: #000;
+    --bg: #404040;
+    --line: #5c5c5c;
+    --recovered: #70a800;
+    --confirmed: #e60000;
+    --cur: #1061a6;
+    --text: #d6d6d6;
+
     margin: 0;
     padding: 0;
 }
 
 canvas.chartjs-render-monitor {
     background: #222222;
+    color: var(--text);
+    background-color: var(--bg);
+}
+
+.app-container {
+    background-color: var(--wrapper-bg);
+}
+
+.country {
+    cursor: pointer;
+    border-bottom: 1px solid var(--line);
+    padding: 5px;
+}
+
+.statistics_wrapper {
+    position: relative;
+    width: 300px;
+    background-color: var(--bg);
+}
+
+.menues > div{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+}
+
+.countries_wrapper {
+    position: relative;
+    width: 300px;
+    background-color: var(--bg);
+}
+
+.countries_container {
+    height: 600px;
+    overflow-y: scroll;
+}
+
+.search {
+    width: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.country > * {
+    margin: 0 5px;
+}
+
+.confirmed {
+    color: var(--confirmed);
+}
+
+.recovered {
+    color: var(--revocered);
+}
+
+.deaths {
+    color: var(--confirmed);
+}
+
+.active {
+    color: var(--confirmed);
+}
+
+.country_name {
+
+}
+
+.cur {
+    background-color: var(--cur);
+}
+
+.flag {
+    height: 1rem;
+    width: 2rem;
+}
+
+span {
+    background: transparent;
+}
+
+.button-arrow{
+    width: 52px;
+    height: 52px;
+    border: 2px solid var(--text);
+    box-sizing: border-box;
+    border-radius: 50%;
+    color: #292929;
+    font-weight: 900;
+}
+
+.button-arrow:hover{
+    background: var(--cur);
+    border-color: var(--cur);
+    cursor: pointer;
 }
