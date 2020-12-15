@@ -12,7 +12,7 @@ export default class App {
     this.chartComponent = new ChartComponent();
     this.statisticsComponent = new StatisticsComponent();
     this.countryListComponent = new CountryListComponent(
-      (activeCountry) => this.updateAppByActiveCountry(activeCountry),
+      (countryCode) => this.updateAppByActiveCountry(countryCode),
     );
     this.chartData = [];
     this.activeCountry = '';
@@ -30,22 +30,28 @@ export default class App {
     rightContainer.classList.add('right-container');
 
     this.chartData = await getWorldDataByLastDays();
-    this.chartComponent.updateChartData(this.chartData); 
+    this.chartComponent.updateChartData(this.chartData);
 
-    rightContainer.append(this.statisticsComponent.render(this.getSummary));
+    // rightContainer.append(this.statisticsComponent.render(this.getSummary));
     rightContainer.append(this.chartComponent.render());
     appContainer.append(rightContainer);
 
     return appContainer;
   }
 
-  setActiveCountry(activeCountry) {
-    this.activeCountry = activeCountry;
+  setActiveCountry(countryCode) {
+    this.activeCountry = countryCode;
+    console.log(this.activeCountry);
   }
 
-  async updateAppByActiveCountry(activeCountry) {
-    this.setActiveCountry(activeCountry);
-    this.chartData = await getCountryDataByLastDays(activeCountry);
-    this.chartComponent.updateChartByActiveCountry(this.chartData.timeline);
+  async updateAppByActiveCountry(countryCode) {
+    this.setActiveCountry(countryCode);
+    this.chartData = await getCountryDataByLastDays(countryCode);
+    if (this.chartData.status === 404) {
+      this.chartComponent.showErrorMessage();
+    }
+    if (!this.chartData.status) {
+      this.chartComponent.updateChartByActiveCountry(this.chartData.timeline);
+    }
   }
 }

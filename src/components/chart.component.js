@@ -9,6 +9,7 @@ export default class ChartComponent {
     this.chart = '';
     this.chartConfig = '';
     this.chartInfoPanel = '';
+    this.errorMessage = '';
     this.isWorldMode = true; // TODO
     this.isAbsoluteData = false; // TODO
     this.isEntirePeriodData = false; // TODO
@@ -24,6 +25,8 @@ export default class ChartComponent {
       transparent: 'rgb(0, 0, 0, 0)',
     };
   }
+
+  // TODO get data by alphacode
 
   render() {
     this.chartContainer = document.createElement('div');
@@ -43,16 +46,19 @@ export default class ChartComponent {
     this.chartInfoPanel = document.createElement('span');
     this.chartInfoPanel.innerText = this.statisticsModes[this.statisticsModeNumber];
 
+    this.errorMessage = document.createElement('div');
+    this.errorMessage.classList.add('error-message');
+    this.errorMessage.innerText = 'There is no data to show';
+
     chartNavigation.append(prevNavigation);
     chartNavigation.append(this.chartInfoPanel);
     chartNavigation.append(nextNavigation);
 
     const charDataToShow = this.getDailyData('cases');
 
+    this.chartContainer.append(this.errorMessage);
     this.chartContainer.append(this.generateChart(charDataToShow));
     this.chartContainer.append(chartNavigation);
-
-    // this.updateChart(data, false);
 
     return this.chartContainer;
   }
@@ -86,6 +92,10 @@ export default class ChartComponent {
     this.updateChart(this.getDataToShow());
   }
 
+  showErrorMessage() {
+    this.chartContainer.classList.add('error');
+  }
+
   changePeriodDataMode(isEntirePeriodData) {
     this.isEntirePeriodData = isEntirePeriodData;
   }
@@ -98,7 +108,9 @@ export default class ChartComponent {
   }
 
   updateChart(chartData) {
-    //this.changeChartType();
+    if (chartData && this.chartContainer.classList.contains('error')) {
+      this.chartContainer.classList.remove('error');
+    }
     this.chart.data.datasets[0].data = chartData;
     this.chart.update({
       duration: 300,

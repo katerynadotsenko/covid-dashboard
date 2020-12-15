@@ -11,13 +11,6 @@
     padding: 0;
 }
 
-canvas.chartjs-render-monitor {
-    color: var(--text);
-    background-color: var(--bg);
-}
-
-.right-container {}
-
 .app-container {
     display: flex;
     justify-content: space-between;
@@ -109,4 +102,37 @@ span {
     background: var(--cur);
     border-color: var(--cur);
     cursor: pointer;
+}
+
+.right-container {
+    width: 25%;
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+}
+
+.chart-container {
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+    flex-basis: 40%;
+    background-color: var(--bg);
+}
+
+.chart-container.error .error-message {
+    display: block;
+}
+
+.chart-container.error .chart-canvas,
+.chart-container.error .chart-navigation {
+    display: none !important;
+}
+
+canvas.chartjs-render-monitor {
+    color: var(--text);
+    background-color: var(--bg);
+}
+
+.error-message {
+    display: none;
 }
