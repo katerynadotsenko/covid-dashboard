@@ -32,7 +32,7 @@ export default class App {
     this.chartData = await getWorldDataByLastDays();
     this.chartComponent.updateChartData(this.chartData);
 
-    // rightContainer.append(this.statisticsComponent.render(this.getSummary));
+    rightContainer.append(this.statisticsComponent.render(this.getSummary));
     rightContainer.append(this.chartComponent.render());
     appContainer.append(rightContainer);
 

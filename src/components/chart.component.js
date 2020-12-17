@@ -1,6 +1,6 @@
 /* eslint-disable import/extensions */
 /* import Chart from 'chart.js'; */
-import { normalizeDate } from '../helpers/utils.js';
+import { normalizeDate, addButton, addElement } from '../helpers/utils.js';
 
 export default class ChartComponent {
   constructor(isWorldMode, isAbsoluteData, isEntirePeriodData, population) {
@@ -14,8 +14,8 @@ export default class ChartComponent {
     this.isAbsoluteData = false; // TODO
     this.isEntirePeriodData = false; // TODO
     this.population = 38437239; // TODO
-    this.statisticsModes = ['Daily Cases', 'Daily Recoveries', 'Daily Deaths'];
-    this.statisticsModeNumber = 0; // TODO
+    this.statisticsCategories = ['Daily Cases', 'Daily Recoveries', 'Daily Deaths'];
+    this.activeStatisticsCategory = 0;
     this.chartStyles = {
       mainColor: 'rgba(255, 170, 0, 1)',
       tooltipsBg: 'rgba(255, 255, 255, 0.8)',
@@ -26,57 +26,80 @@ export default class ChartComponent {
     };
   }
 
-  // TODO get data by alphacode
-
   render() {
-    this.chartContainer = document.createElement('div');
-    this.chartContainer.classList.add('chart-container');
-
-    const chartNavigation = document.createElement('div');
-    chartNavigation.classList.add('chart-navigation');
-
-    const prevNavigation = document.createElement('button');
-    prevNavigation.innerText = 'prev';
-    prevNavigation.addEventListener('click', () => this.bindNavigationListeners('prev'));
-
-    const nextNavigation = document.createElement('button');
-    nextNavigation.innerText = 'next';
-    nextNavigation.addEventListener('click', () => this.bindNavigationListeners('next'));
-
-    this.chartInfoPanel = document.createElement('span');
-    this.chartInfoPanel.innerText = this.statisticsModes[this.statisticsModeNumber];
-
-    this.errorMessage = document.createElement('div');
-    this.errorMessage.classList.add('error-message');
-    this.errorMessage.innerText = 'There is no data to show';
-
-    chartNavigation.append(prevNavigation);
-    chartNavigation.append(this.chartInfoPanel);
-    chartNavigation.append(nextNavigation);
+    this.chartContainer = addElement(
+      null,
+      'div',
+      ['chart-container'],
+      '',
+    );
 
     const charDataToShow = this.getDailyData('cases');
 
-    this.chartContainer.append(this.errorMessage);
-    this.chartContainer.append(this.generateChart(charDataToShow));
-    this.chartContainer.append(chartNavigation);
+    if (charDataToShow) {
+      this.chartContainer.append(this.generateChart(charDataToShow));
+    }
+
+    const chartNavigation = addElement(
+      this.chartContainer,
+      'div',
+      ['chart-navigation'],
+      '',
+    );
+
+    addButton(
+      chartNavigation,
+      ['button'],
+      `<span class='material-icons'>
+      arrow_left
+      </span>`,
+      () => this.changeActiveStatisticsCategory(this.activeStatisticsCategory - 1),
+    );
+
+    this.chartInfoPanel = addElement(
+      chartNavigation,
+      'span',
+      ['chart-navigation__info'],
+      this.statisticsCategories[this.activeStatisticsCategory],
+    );
+
+    addButton(
+      chartNavigation,
+      ['button'],
+      `<span class='material-icons'>
+      arrow_right
+      </span>`,
+      () => this.changeActiveStatisticsCategory(this.activeStatisticsCategory + 1),
+    );
+
+    this.errorMessage = addElement(
+      this.chartContainer,
+      'div',
+      ['error-message'],
+      'There is no data to show. Please, try later',
+    );
 
     return this.chartContainer;
   }
 
-  bindNavigationListeners(navDirection) {
-    const maxLength = this.statisticsModes.length - 1;
+  onChangeStatisticsCategory() {
     const extraText = this.isAbsoluteData ? 'per 100,000 population' : '';
-    if (navDirection === 'next') {
-      if (this.statisticsModeNumber < maxLength) {
-        this.statisticsModeNumber += 1;
-        this.chartInfoPanel.innerText = `${this.statisticsModes[this.statisticsModeNumber]} ${extraText}`;
-        this.updateChart(this.getDataToShow());
-      }
-    } else if (this.statisticsModeNumber > 0) {
-      this.statisticsModeNumber -= 1;
-      this.chartInfoPanel.innerText = `${this.statisticsModes[this.statisticsModeNumber]} ${extraText}`;
-      this.updateChart(this.getDataToShow());
+    this.chartInfoPanel.innerText = `${this.statisticsCategories[this.activeStatisticsCategory]} ${extraText}`;
+    this.updateChart(this.getDataToShow());
+  }
+
+  changeActiveStatisticsCategory(categoryNumber) {
+    let nextCategoryNumber = categoryNumber;
+    if (nextCategoryNumber < 0) {
+      nextCategoryNumber = 0;
+      return;
     }
+    if (nextCategoryNumber > this.statisticsCategories.length - 1) {
+      nextCategoryNumber = this.statisticsCategories.length - 1;
+      return;
+    }
+    this.activeStatisticsCategory = nextCategoryNumber;
+    this.onChangeStatisticsCategory();
   }
 
   updateChartData(chartData) {
@@ -108,6 +131,10 @@ export default class ChartComponent {
   }
 
   updateChart(chartData) {
+    if (!chartData) {
+      this.showErrorMessage();
+      return;
+    }
     if (chartData && this.chartContainer.classList.contains('error')) {
       this.chartContainer.classList.remove('error');
     }
@@ -120,7 +147,7 @@ export default class ChartComponent {
 
   getDataToShow() {
     let charDataToShow = [];
-    switch (this.statisticsModes[this.statisticsModeNumber]) {
+    switch (this.statisticsCategories[this.activeStatisticsCategory]) {
       case 'Daily Cases':
         charDataToShow = this.getDailyData('cases');
         break;
@@ -138,20 +165,22 @@ export default class ChartComponent {
   }
 
   getDailyData(parameter) {
-    let prevItem = 0;
-    return Object.entries(this.chartData[parameter]).map((item) => {
-      const [date, quantity] = item;
-      const quantityToCalc = this.isEntirePeriodData ? quantity : quantity - prevItem;
-      const resultQuantity = this.isAbsoluteData
-        ? ((quantityToCalc / this.population) * 100000).toFixed(3)
-        : quantityToCalc;
-      const itemData = { x: new Date(date), y: resultQuantity };
-      prevItem = quantity;
-      if (itemData.y < 0) {
-        console.log(itemData.y);
-      }
-      return itemData;
-    });
+    try {
+      let prevItem = 0;
+      return Object.entries(this.chartData[parameter]).map((item) => {
+        const [date, quantity] = item;
+        const quantityToCalc = this.isEntirePeriodData ? quantity : quantity - prevItem;
+        const resultQuantity = this.isAbsoluteData
+          ? ((quantityToCalc / this.population) * 100000).toFixed(3)
+          : quantityToCalc;
+        const itemData = { x: new Date(date), y: resultQuantity };
+        prevItem = quantity;
+        return itemData;
+      });
+    } catch (err) {
+      this.showErrorMessage();
+      return null;
+    }
   }
 
   generateChart(charDataToShow) {
@@ -186,7 +215,7 @@ export default class ChartComponent {
           yAxes: [{
             ticks: {
               beginAtZero: true,
-              stepSize: 200000,
+              // stepSize: 200000,
               fontColor: this.chartStyles.ticksColor,
               callback: (value) => {
                 const ranges = [
@@ -195,7 +224,7 @@ export default class ChartComponent {
                 ];
                 function formatNumber(n) {
                   for (let i = 0; i < ranges.length; i += 1) {
-                    if (n >= ranges[i].divider) {
+                    if (Math.abs(n) >= ranges[i].divider) {
                       return (n / ranges[i].divider).toString() + ranges[i].suffix;
                     }
                   }
