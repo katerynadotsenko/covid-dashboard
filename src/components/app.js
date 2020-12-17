@@ -11,8 +11,11 @@ export default class App {
     this.mapComponent = new MapComponent();
     this.chartComponent = new ChartComponent();
     this.statisticsComponent = new StatisticsComponent();
-    this.countryListComponent = new CountryListComponent();
+    this.countryListComponent = new CountryListComponent(
+      (countryCode) => this.updateAppByActiveCountry(countryCode),
+    );
     this.chartData = [];
+    this.activeCountry = '';
   }
 
   async init() {
@@ -26,16 +29,29 @@ export default class App {
     const rightContainer = document.createElement('div');
     rightContainer.classList.add('right-container');
 
-    this.chartData = await getWorldDataByLastDays(); //for world
-    this.chartComponent.updateChartData(this.chartData); //for world
-
-    //this.chartData = await getCountryDataByLastDays('poland'); //for country
-    //this.chartComponent.updateChartData(this.chartData.timeline); //for country
+    this.chartData = await getWorldDataByLastDays();
+    this.chartComponent.updateChartData(this.chartData);
 
     rightContainer.append(this.statisticsComponent.render(this.getSummary));
     rightContainer.append(this.chartComponent.render());
     appContainer.append(rightContainer);
 
     return appContainer;
+  }
+
+  setActiveCountry(countryCode) {
+    this.activeCountry = countryCode;
+    console.log(this.activeCountry);
+  }
+
+  async updateAppByActiveCountry(countryCode) {
+    this.setActiveCountry(countryCode);
+    this.chartData = await getCountryDataByLastDays(countryCode);
+    if (this.chartData.status === 404) {
+      this.chartComponent.showErrorMessage();
+    }
+    if (!this.chartData.status) {
+      this.chartComponent.updateChartByActiveCountry(this.chartData.timeline);
+    }
   }
 }

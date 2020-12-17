@@ -3,7 +3,8 @@ import { appendChildren } from '../helpers/utils.js';
 import state from '../helpers/state.js';
 
 export default class CountryListComponent {
-  constructor() {
+  constructor(updateAppByActiveCountry) {
+    this.updateAppByActiveCountry = updateAppByActiveCountry;
   }
 
   render(summary) {
@@ -37,6 +38,7 @@ export default class CountryListComponent {
       countryElement.classList.add('country');
       countryElement.id = c.CountryCode;
       countryElement.onclick = () => {
+        this.updateAppByActiveCountry(c.CountryCode);
         if (state.country) {
           this.countriesElements[state.country].classList.remove('cur');
         }
