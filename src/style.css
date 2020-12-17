@@ -11,17 +11,27 @@
     padding: 0;
 }
 
-canvas.chartjs-render-monitor {
-    color: var(--text);
-    background-color: var(--bg);
+body {
+    font-family: Arial, Helvetica, sans-serif;
 }
-
-.right-container {}
 
 .app-container {
     display: flex;
     justify-content: space-between;
     background-color: var(--wrapper-bg);
+}
+
+.button {
+    border: 0;
+    background-color: transparent;
+    color: var(--text);
+    cursor: pointer;
+    outline: none;
+    transition: .2s linear;
+}
+
+.button:hover {
+    opacity: 0.8;
 }
 
 .country {
@@ -109,4 +119,50 @@ span {
     background: var(--cur);
     border-color: var(--cur);
     cursor: pointer;
+}
+
+.right-container {
+    width: 25%;
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+}
+
+.chart-container {
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+    flex-basis: 40%;
+    background-color: var(--bg);
+    padding: 10px;
+    color: var(--text);
+}
+
+.chart-container.error .error-message {
+    display: block;
+}
+
+.chart-container.error .chart-canvas,
+.chart-container.error .chart-navigation {
+    display: none !important;
+}
+
+canvas.chartjs-render-monitor {
+    color: var(--text);
+    background-color: var(--bg);
+}
+
+.chart-navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8rem;
+    margin-top: 10px;
+}
+
+.error-message {
+    display: none;
+    margin: auto;
+    font-size: 1.2rem;
+    text-align: center;
 }
