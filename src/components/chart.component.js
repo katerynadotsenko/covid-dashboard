@@ -1,18 +1,24 @@
 /* eslint-disable import/extensions */
 /* import Chart from 'chart.js'; */
+import ControlPanelComponent from './control-panel.component.js';
+
 import { normalizeDate, addButton, addElement } from '../helpers/utils.js';
 
 export default class ChartComponent {
-  constructor(isWorldMode, isAbsoluteData, isEntirePeriodData, population) {
+  constructor(/* isAbsoluteData, isTotal, population, */ changeAppPeriodMode, changeAppDataTypeMode) {
+    this.changeAppPeriodMode = changeAppPeriodMode;
+    this.changeAppDataTypeMode = changeAppDataTypeMode;
+    this.controlPanelComponent = new ControlPanelComponent(
+      this.changeAppPeriodMode, this.changeAppDataTypeMode,
+    );
     this.chartData = [];
     this.chartContainer = '';
     this.chart = '';
     this.chartConfig = '';
     this.chartInfoPanel = '';
     this.errorMessage = '';
-    this.isWorldMode = true; // TODO
-    this.isAbsoluteData = false; // TODO
-    this.isEntirePeriodData = false; // TODO
+    this.isAbsoluteData = true;
+    this.isTotal = true;
     this.population = 38437239; // TODO
     this.statisticsCategories = ['Daily Cases', 'Daily Recoveries', 'Daily Deaths'];
     this.activeStatisticsCategory = 0;
@@ -24,6 +30,7 @@ export default class ChartComponent {
       ticksColor: 'rgb(149, 149, 149)',
       transparent: 'rgb(0, 0, 0, 0)',
     };
+    this.switch = '';
   }
 
   render() {
@@ -33,6 +40,8 @@ export default class ChartComponent {
       ['chart-container'],
       '',
     );
+
+    this.controlPanelComponent.addControlPanel(this.chartContainer);
 
     const charDataToShow = this.getDailyData('cases');
 
@@ -83,9 +92,13 @@ export default class ChartComponent {
   }
 
   onChangeStatisticsCategory() {
-    const extraText = this.isAbsoluteData ? 'per 100,000 population' : '';
-    this.chartInfoPanel.innerText = `${this.statisticsCategories[this.activeStatisticsCategory]} ${extraText}`;
+    this.changeChartInfoText();
     this.updateChart(this.getDataToShow());
+  }
+
+  changeChartInfoText() {
+    const extraText = this.isAbsoluteData ? '' : 'per 100,000 population';
+    this.chartInfoPanel.innerText = `${this.statisticsCategories[this.activeStatisticsCategory]} ${extraText}`;
   }
 
   changeActiveStatisticsCategory(categoryNumber) {
@@ -106,10 +119,6 @@ export default class ChartComponent {
     this.chartData = chartData;
   }
 
-  updateChartMode(isWorldMode) {
-    this.isWorldMode = isWorldMode;
-  }
-
   updateChartByActiveCountry(chartData) {
     this.updateChartData(chartData);
     this.updateChart(this.getDataToShow());
@@ -119,14 +128,22 @@ export default class ChartComponent {
     this.chartContainer.classList.add('error');
   }
 
-  changePeriodDataMode(isEntirePeriodData) {
-    this.isEntirePeriodData = isEntirePeriodData;
+  changePeriodMode(isTotal) {
+    this.isTotal = isTotal;
+    this.changeChartType();
+    this.updateChart(this.getDataToShow());
+  }
+
+  changeDataTypeMode(isAbsoluteData) {
+    this.isAbsoluteData = isAbsoluteData;
+    this.changeChartInfoText();
+    this.updateChart(this.getDataToShow());
   }
 
   changeChartType() {
     this.chart.destroy();
     const chartCanvas = this.chartContainer.querySelector('.chart-canvas');
-    const chartType = this.isEntirePeriodData ? 'line' : 'bar';
+    const chartType = this.isTotal ? 'line' : 'bar';
     this.chart = new Chart(chartCanvas, this.generateChartConfig(chartType, null));
   }
 
@@ -169,10 +186,10 @@ export default class ChartComponent {
       let prevItem = 0;
       return Object.entries(this.chartData[parameter]).map((item) => {
         const [date, quantity] = item;
-        const quantityToCalc = this.isEntirePeriodData ? quantity : quantity - prevItem;
+        const quantityToCalc = this.isTotal ? quantity : quantity - prevItem;
         const resultQuantity = this.isAbsoluteData
-          ? ((quantityToCalc / this.population) * 100000).toFixed(3)
-          : quantityToCalc;
+          ? quantityToCalc
+          : ((quantityToCalc / this.population) * 100000).toFixed(3);
         const itemData = { x: new Date(date), y: resultQuantity };
         prevItem = quantity;
         return itemData;
@@ -187,7 +204,7 @@ export default class ChartComponent {
     const chartCanvas = document.createElement('canvas');
     chartCanvas.classList.add('chart-canvas');
     chartCanvas.getContext('2d');
-    this.chart = new Chart(chartCanvas, this.generateChartConfig('bar', charDataToShow));
+    this.chart = new Chart(chartCanvas, this.generateChartConfig('line', charDataToShow));
     return chartCanvas;
   }
 
@@ -199,7 +216,7 @@ export default class ChartComponent {
       barThickness: 'flex',
       categoryPercentage: 1,
     }];
-    if (this.isEntirePeriodData) {
+    if (this.isTotal) {
       datasets[0].backgroundColor = this.chartStyles.transparent;
       datasets[0].borderColor = this.chartStyles.mainColor;
       datasets[0].pointBackgroundColor = this.chartStyles.mainColor;
