@@ -9,13 +9,18 @@ import state from '../helpers/state.js';
 export default class App {
   constructor() {
     this.mapComponent = new MapComponent();
-    this.chartComponent = new ChartComponent();
+    this.chartComponent = new ChartComponent(
+      (isTotalMode) => this.changeAppPeriodMode(isTotalMode),
+      (isAbsoluteMode) => this.changeAppDataTypeMode(isAbsoluteMode),
+    );
     this.statisticsComponent = new StatisticsComponent();
     this.countryListComponent = new CountryListComponent(
       (countryCode) => this.updateAppByActiveCountry(countryCode),
     );
     this.chartData = [];
     this.activeCountry = '';
+    this.isTotal = true;
+    this.isAbsoluteData = true;
   }
 
   async init() {
@@ -39,9 +44,18 @@ export default class App {
     return appContainer;
   }
 
+  changeAppPeriodMode(isTotal) {
+    this.isTotal = isTotal;
+    this.chartComponent.changePeriodMode(isTotal);
+  }
+
+  changeAppDataTypeMode(isAbsoluteData) {
+    this.isAbsoluteData = isAbsoluteData;
+    this.chartComponent.changeDataTypeMode(isAbsoluteData);
+  }
+
   setActiveCountry(countryCode) {
     this.activeCountry = countryCode;
-    console.log(this.activeCountry);
   }
 
   async updateAppByActiveCountry(countryCode) {
