@@ -1,13 +1,18 @@
 /* eslint-disable */
+import euCountries from '../helpers/eu-countries.js';
 export default class MapComponent {
 
   constructor() {
     this.mapContainer = '';
     this.mapOptions = {
-      center: [55, 3],
+      center: [45, 10],
       zoom: 2,
       worldCopyJump: true,
-      minZoom: 1
+      minZoom: 1,
+      fullscreenControl: true,
+      fullscreenControlOptions: {
+        position: 'topleft'
+      }
     }
     let iconOptions = {
       iconUrl: '/assets/circle.svg',
@@ -25,6 +30,19 @@ export default class MapComponent {
     let layer = new L.TileLayer('https://api.mapbox.com/styles/v1/general-m/ckij3fcw82az119mgnjhkeu2m/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiZ2VuZXJhbC1tIiwiYSI6ImNraWozZjdrdjJkbWYycnBlNmw5N3RhNjgifQ.awd7EvjA7RM8Dl4Xb_5dBA');
     map.addLayer(layer);
 
+    // Подсветка стран через geojson
+    map.createPane('labels');
+    map.getPane('labels').style.zIndex = 650;
+    map.getPane('labels').style.pointerEvents = 'none';
+    let positron = L.tileLayer('https://api.mapbox.com/styles/v1/general-m/ckij3fcw82az119mgnjhkeu2m/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiZ2VuZXJhbC1tIiwiYSI6ImNraWozZjdrdjJkbWYycnBlNmw5N3RhNjgifQ.awd7EvjA7RM8Dl4Xb_5dBA').addTo(map);
+    let positronLabels = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}.png', {
+      pane: 'labels'
+    }).addTo(map);
+    let geojson = L.geoJson(euCountries).addTo(map);
+    geojson.eachLayer(function (layer) {
+      layer.bindPopup(layer.feature.properties.name);
+    });
+
     /// Легенда карты
     let info = L.control();
     info.onAdd = function (map) {
@@ -36,7 +54,6 @@ export default class MapComponent {
       this._div.innerHTML = 'Legend <br> 11111 <br> 2222 <br> 3333';
     };
     info.addTo(map);
-
 
     // Получение координат по движению мыши по карте
     // map.on('mousemove', getShowPopup);
