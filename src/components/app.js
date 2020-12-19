@@ -2,7 +2,7 @@
 import MapComponent from './map.component.js';
 import CountryListComponent from './country-list.component.js';
 import ChartComponent from './chart.component.js';
-import { getWorldDataByLastDays, getCountryDataByLastDays, getSummary } from '../service.js';
+import { getWorldDataByLastDays, getCountryDataByLastDays, getSummary, getDataforMarkers } from '../service.js';
 import StatisticsComponent from './statistics.component.js';
 import state from '../helpers/state.js';
 
@@ -21,6 +21,7 @@ export default class App {
     this.activeCountry = '';
     this.isTotal = true;
     this.isAbsoluteData = true;
+    this.markersData = [];
   }
 
   async init() {
@@ -29,7 +30,8 @@ export default class App {
     this.getSummary = await getSummary();
     appContainer.append(this.countryListComponent.render(this.getSummary));
 
-    appContainer.append(this.mapComponent.render());
+    this.markersData = await getDataforMarkers();
+    appContainer.append(this.mapComponent.render(this.markersData));
 
     const rightContainer = document.createElement('div');
     rightContainer.classList.add('right-container');

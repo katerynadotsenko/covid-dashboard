@@ -22,6 +22,18 @@ async function getCountryDataByLastDays(country, dayQuantity = 'all') {
   }
 }
 
+async function getDataforMarkers() {
+  try {
+    const res = await fetch('https://disease.sh/v3/covid-19/jhucsse');
+    if (res.status === 200) {
+      return res.json();
+    }
+    return res;
+  } catch (err) {
+    return err;
+  }
+}
+
 async function getSummary() {
   try {
     const summary = await (await fetch('https://api.covid19api.com/summary')).json();
@@ -41,4 +53,4 @@ async function getSummary() {
   }
 }
 
-export { getWorldDataByLastDays, getCountryDataByLastDays, getSummary };
+export { getWorldDataByLastDays, getCountryDataByLastDays, getSummary, getDataforMarkers };
