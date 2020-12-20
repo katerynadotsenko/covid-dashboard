@@ -31,7 +31,7 @@ export default class App {
     appContainer.append(this.countryListComponent.render(this.getSummary));
 
     this.markersData = await getDataforMarkers();
-    appContainer.append(this.mapComponent.render(this.markersData));
+    appContainer.append(this.mapComponent.render(this.markersData, this.getSummary));
 
     const rightContainer = document.createElement('div');
     rightContainer.classList.add('right-container');

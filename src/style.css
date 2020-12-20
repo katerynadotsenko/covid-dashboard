@@ -173,13 +173,14 @@ canvas.chartjs-render-monitor {
     height: 100%;
 }
 
-.info {
+.info,.map-control-button {
     padding: 6px 8px;
     font: 14px/16px Arial, Helvetica, sans-serif;
     background: var(--white);
     opacity: 0.8;
     box-shadow: 0 0 15px var(--text);
     border-radius: 5px;
+    cursor: pointer;
 }
 
 .switch {
