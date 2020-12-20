@@ -37,12 +37,13 @@ async function getDataforMarkers() {
 async function getSummary() {
   try {
     const summary = await (await fetch('https://api.covid19api.com/summary')).json();
-    const flags = await (await fetch('https://restcountries.eu/rest/v2/all?fields=name;population;flag;alpha2Code')).json();
+    const flags = await (await fetch('https://restcountries.eu/rest/v2/all?fields=name;population;flag;alpha2Code;alpha3Code')).json();
     summary.Countries.forEach((c, idx) => {
       const flagResult = flags.find((i) => i.alpha2Code === c.CountryCode);
       if (flagResult) {
         c.flag = flagResult.flag;
         c.population = flagResult.population;
+        c.alpha3Code = flagResult.alpha3Code;
       } else {
         delete summary.Countries[idx];
       }
