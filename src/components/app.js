@@ -15,7 +15,7 @@ export default class App {
     );
     this.statisticsComponent = new StatisticsComponent();
     this.countryListComponent = new CountryListComponent(
-      (countryCode) => this.updateAppByActiveCountry(countryCode),
+      (countryCode, population) => this.updateAppByActiveCountry(countryCode, population),
     );
     this.chartData = [];
     this.activeCountry = '';
@@ -60,14 +60,14 @@ export default class App {
     this.activeCountry = countryCode;
   }
 
-  async updateAppByActiveCountry(countryCode) {
+  async updateAppByActiveCountry(countryCode, population) {
     this.setActiveCountry(countryCode);
     this.chartData = await getCountryDataByLastDays(countryCode);
     if (this.chartData.status === 404) {
       this.chartComponent.showErrorMessage();
     }
     if (!this.chartData.status) {
-      this.chartComponent.updateChartByActiveCountry(this.chartData.timeline);
+      this.chartComponent.updateChartByActiveCountry(this.chartData.timeline, population);
     }
   }
 }

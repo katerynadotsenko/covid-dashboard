@@ -5,7 +5,7 @@ import ControlPanelComponent from './control-panel.component.js';
 import { normalizeDate, addButton, addElement } from '../helpers/utils.js';
 
 export default class ChartComponent {
-  constructor(/* isAbsoluteData, isTotal, population, */ changeAppPeriodMode, changeAppDataTypeMode) {
+  constructor(changeAppPeriodMode, changeAppDataTypeMode) {
     this.changeAppPeriodMode = changeAppPeriodMode;
     this.changeAppDataTypeMode = changeAppDataTypeMode;
     this.controlPanelComponent = new ControlPanelComponent(
@@ -19,8 +19,8 @@ export default class ChartComponent {
     this.errorMessage = '';
     this.isAbsoluteData = true;
     this.isTotal = true;
-    this.population = 38437239; // TODO
-    this.statisticsCategories = ['Daily Cases', 'Daily Recoveries', 'Daily Deaths'];
+    this.population = 7800000000; //TODO get world population
+    this.statisticsCategories = ['Cases', 'Recoveries', 'Deaths'];
     this.activeStatisticsCategory = 0;
     this.chartStyles = {
       mainColor: 'rgba(255, 170, 0, 1)',
@@ -69,7 +69,7 @@ export default class ChartComponent {
       chartNavigation,
       'span',
       ['chart-navigation__info'],
-      this.statisticsCategories[this.activeStatisticsCategory],
+      `Cumulative ${this.statisticsCategories[this.activeStatisticsCategory]}`,
     );
 
     addButton(
@@ -97,8 +97,9 @@ export default class ChartComponent {
   }
 
   changeChartInfoText() {
-    const extraText = this.isAbsoluteData ? '' : 'per 100,000 population';
-    this.chartInfoPanel.innerText = `${this.statisticsCategories[this.activeStatisticsCategory]} ${extraText}`;
+    const extraTextFirst = this.isTotal ? 'Cumulative' : 'Daily';
+    const extraTextLast = this.isAbsoluteData ? '' : 'per 100,000 population';
+    this.chartInfoPanel.innerText = `${extraTextFirst} ${this.statisticsCategories[this.activeStatisticsCategory]} ${extraTextLast}`;
   }
 
   changeActiveStatisticsCategory(categoryNumber) {
@@ -119,8 +120,9 @@ export default class ChartComponent {
     this.chartData = chartData;
   }
 
-  updateChartByActiveCountry(chartData) {
+  updateChartByActiveCountry(chartData, population) {
     this.updateChartData(chartData);
+    this.population = population;
     this.updateChart(this.getDataToShow());
   }
 
@@ -130,6 +132,7 @@ export default class ChartComponent {
 
   changePeriodMode(isTotal) {
     this.isTotal = isTotal;
+    this.changeChartInfoText();
     this.changeChartType();
     this.updateChart(this.getDataToShow());
   }
@@ -165,13 +168,13 @@ export default class ChartComponent {
   getDataToShow() {
     let charDataToShow = [];
     switch (this.statisticsCategories[this.activeStatisticsCategory]) {
-      case 'Daily Cases':
+      case 'Cases':
         charDataToShow = this.getDailyData('cases');
         break;
-      case 'Daily Recoveries':
+      case 'Recoveries':
         charDataToShow = this.getDailyData('recovered');
         break;
-      case 'Daily Deaths':
+      case 'Deaths':
         charDataToShow = this.getDailyData('deaths');
         break;
       default:

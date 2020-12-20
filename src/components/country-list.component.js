@@ -38,7 +38,7 @@ export default class CountryListComponent {
       countryElement.classList.add('country');
       countryElement.id = c.CountryCode;
       countryElement.onclick = () => {
-        this.updateAppByActiveCountry(c.CountryCode);
+        this.updateAppByActiveCountry(c.CountryCode, c.population);
         if (state.country) {
           this.countriesElements[state.country].classList.remove('cur');
         }
