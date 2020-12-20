@@ -28,10 +28,12 @@ export default class App {
     const appContainer = document.querySelector('.app-container');
 
     this.getSummary = await getSummary();
-    appContainer.append(this.countryListComponent.render(this.getSummary));
+    const countryListNode = this.countryListComponent.render(this.getSummary);
+    appContainer.append(countryListNode);
 
     this.markersData = await getDataforMarkers();
-    appContainer.append(this.mapComponent.render(this.markersData, this.getSummary));
+    const mapNode = this.mapComponent.render(this.markersData, this.getSummary);
+    appContainer.append(mapNode);
 
     const rightContainer = document.createElement('div');
     rightContainer.classList.add('right-container');
@@ -39,9 +41,37 @@ export default class App {
     this.chartData = await getWorldDataByLastDays();
     this.chartComponent.updateChartData(this.chartData);
 
-    rightContainer.append(this.statisticsComponent.render(this.getSummary));
-    rightContainer.append(this.chartComponent.render());
+    const statisticsNode = this.statisticsComponent.render(this.getSummary);
+    rightContainer.append(statisticsNode);
+    const chartNode = this.chartComponent.render();
+    rightContainer.append(chartNode);
     appContainer.append(rightContainer);
+
+    [chartNode, statisticsNode, countryListNode].forEach(c => {
+      c.classList.add('container');
+      c.addEventListener('mouseover', changeDefOver);
+      c.addEventListener('mouseout', changeDefOut);
+
+      const fullscreenToggle = document.createElement('div');
+      fullscreenToggle.classList.add('fullscreenToggle');
+      const fullscreenIcon = document.createElement('img');
+      fullscreenIcon.classList.add('fullscreenIcon');
+      fullscreenIcon.src = '../../assets/icon-fullscreen.png';
+      fullscreenToggle.appendChild(fullscreenIcon);
+      c.appendChild(fullscreenToggle);
+
+      fullscreenToggle.addEventListener('click', () => {
+        c.classList.toggle('fullscreen');
+      });
+
+      function changeDefOver(e) {
+        fullscreenToggle.classList.add('invis');
+      }
+
+      function changeDefOut(e) {
+        fullscreenToggle.classList.remove('invis');
+      }
+    });
 
     return appContainer;
   }
