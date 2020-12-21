@@ -22,34 +22,32 @@ export default class MapComponent {
 
   render(markersData, summary) {
     this.getSummary = summary;
-    this.mapContainer = document.createElement('div');
-    this.mapContainer.setAttribute('id', 'map');
-    this.mapContainer.style.width = '1024px';
-    this.mapContainer.style.height = '768px';
+    // this.mapContainer = document.createElement('div');
+    // this.mapContainer.setAttribute('id', 'map');
+    // this.mapContainer.style.width = '1024px';
+    // this.mapContainer.style.height = '768px';
     this.createMap(markersData);
     return this.mapContainer;
   }
 
   createMap(markersData, summary) {
     const countries = this.getSummary.Countries;
-    // console.log(this.getSummary);
+    console.log(this.getSummary);
     let iconOptions = {
       iconUrl: '/assets/i.webp',
       iconSize: [9, 9]
     }
     let customIcon = L.icon(iconOptions);
     this.markerOptions = {
-      title: "MyLocation",
+      // title: "MyLocation",
       clickable: true,
       icon: customIcon
     }
 
-    let map = new L.map(this.mapContainer, this.mapOptions);
+    let map = new L.map('map', this.mapOptions);
     // let layer = new L.TileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
     let layer = new L.TileLayer('https://api.mapbox.com/styles/v1/general-m/ckij3fcw82az119mgnjhkeu2m/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiZ2VuZXJhbC1tIiwiYSI6ImNraWozZjdrdjJkbWYycnBlNmw5N3RhNjgifQ.awd7EvjA7RM8Dl4Xb_5dBA');
     map.addLayer(layer);
-
-
 
     // Подсветка стран через geojson
     map.createPane('labels');
@@ -61,7 +59,7 @@ export default class MapComponent {
     }).addTo(map);
     let styleGeojson = {
       "color": "#556577",
-      "weight": 1,
+      "weight": 2,
       "opacity": 0.65
     };
     let geojson = L.geoJson(euCountries, {
@@ -72,17 +70,16 @@ export default class MapComponent {
       // layer.bindPopup(layer.feature.properties.name);
       // console.log(layer.feature.properties.name);
       layer.on('mousemove', function (event) {
-        let currentCountry = layer.feature.properties.name_long;
-        let totalConfirmed;
+        let currentCountry = layer.feature.properties.adm0_a3;
+        let totalConfirmed = 'No data';
         for (let key in countries) {
-          if (countries[key].Country === currentCountry) {
-            console.log(countries[key].TotalConfirmed)
+          if (countries[key].alpha3Code === currentCountry || countries[key].Country === layer.feature.properties.name_long) {
             totalConfirmed = countries[key].TotalConfirmed;
           }
         }
         let popup = L.popup()
           .setLatLng(event.latlng)
-          .setContent(currentCountry + '<br>' + totalConfirmed)
+          .setContent(layer.feature.properties.name + '<br>' + totalConfirmed)
           .openOn(map);
         this.openPopup(popup);
       });

@@ -18,10 +18,11 @@ export default class CountryListComponent {
 
     const search = document.createElement('input');
     search.classList.add('search');
+    search.classList.add('use-keyboard-input');
     search.placeholder = 'Country search...';
-    search.oninput = () => {
+    search.onfocus = () => {
       if (search.value) {
-        appendChildren(this.countriesContainer, Object.values(this.countriesElements).filter((c) => this.countries[c.id].Country.startsWith(search.value)));
+        appendChildren(this.countriesContainer, Object.values(this.countriesElements).filter((c) => this.countries[c.id].Country.toUpperCase().startsWith(search.value.toUpperCase())));
       } else {
         appendChildren(this.countriesContainer, Object.values(this.countriesElements));
       }

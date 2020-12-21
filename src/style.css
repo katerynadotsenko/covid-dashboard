@@ -235,3 +235,138 @@ input:focus+.switch__slider {
 input:checked+.switch__slider:before {
     left: calc(100% - 30px);
 }
+
+.container {
+    padding: 15px;
+    position: relative;
+}
+
+.fullscreen {
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 9999;
+    height: 100%;
+    width: 100vw;
+    box-sizing: border-box;
+}
+
+.fullscreenIcon {
+    height: 30px;
+    width: 30px;
+}
+
+.fullscreenToggle {
+    visibility: hidden;
+    position: absolute;
+    background: var(--text);
+    border-radius: 50%;
+    right: 0;
+    top: 0;
+    cursor: pointer;
+}
+
+.invis {
+    visibility: visible;
+}
+  
+  .keyboard {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    padding: 5px 0;
+    background: #003441;
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+    user-select: none;
+    transition: bottom 0.4s;
+    z-index: 9999;
+  }
+  
+  .keyboard--hidden {
+    bottom: -100%;
+  }
+  
+  .keyboard__keys {
+    text-align: center;
+  }
+  
+  .keyboard__key {
+    height: 45px;
+    width: 6%;
+    max-width: 90px;
+    margin: 3px;
+    border-radius: 4px;
+    border: none;
+    background: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+    font-size: 1.05rem;
+    outline: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    vertical-align: top;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+    position: relative;
+  }
+  
+  .keyboard__key:active, .keyboard__key.active{
+    background: rgba(255, 255, 255, 0.12);
+  }
+  
+  .keyboard__key--wide {
+    width: 12%;
+  }
+  
+  .keyboard__key--extra-wide {
+    width: 36%;
+    max-width: 500px;
+  }
+  
+  .keyboard__key--activatable::after {
+    content: '';
+    top: 10px;
+    right: 10px;
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 50%;
+  }
+  
+  .keyboard__key--active::after {
+    background: #ffffff;
+  }
+  
+  .keyboard__key--dark {
+    background: rgba(0, 0, 0, 0.25);
+  }
+  
+  @media (max-width: 960px) {
+    .keyboard__key {
+      height: 30px;
+      width: 5%;
+      font-size: 0.6rem;
+    }
+  
+    .keyboard__key--wide {
+      width: 9%;
+    }
+    
+    .keyboard__key--extra-wide {
+      width: 36%;
+    }
+  
+    .material-icons {
+      font-size: 1.2rem;
+    }
+  
+    .keyboard__key--activatable::after {
+      top: 3px;
+      right: 3px;
+      width: 8px;
+      height: 8px;
+    }
+  }
