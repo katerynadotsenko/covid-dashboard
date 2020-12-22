@@ -79,7 +79,7 @@ body {
 
 .countries_wrapper {
     position: relative;
-    max-width: 350px;
+    width: 350px;
     background-color: var(--bg);
 }
 
@@ -349,7 +349,8 @@ input:checked+.switch__slider:before {
     bottom: 0;
     width: 100%;
     padding: 5px 0;
-    background: #003441;
+    background: var(--bg);
+    border: 1px solid var(--wrapper-bg);
     box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
     user-select: none;
     transition: bottom 0.4s;

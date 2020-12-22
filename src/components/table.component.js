@@ -13,7 +13,7 @@ export default class TableComponent {
     this.recoveries = '';
     this.deaths = '';
     this.isTotal = true;
-    this.isAbsoluteData = false;
+    this.isAbsoluteData = true;
     this.tableData = null;
     this.isWorld = true;
     this.population = 7800000000; // TODO get world population
