@@ -8,7 +8,10 @@ import state from '../helpers/state.js';
 
 export default class App {
   constructor() {
-    this.mapComponent = new MapComponent();
+    this.mapComponent = new MapComponent(
+      (isTotalMode) => this.changeAppPeriodMode(isTotalMode),
+      (isAbsoluteMode) => this.changeAppDataTypeMode(isAbsoluteMode),
+    );
     this.chartComponent = new ChartComponent(
       (isTotalMode) => this.changeAppPeriodMode(isTotalMode),
       (isAbsoluteMode) => this.changeAppDataTypeMode(isAbsoluteMode),

@@ -3,7 +3,12 @@ import euCountries from '../helpers/eu-countries.js';
 import ControlPanelComponent from './control-panel.component.js';
 export default class MapComponent {
 
-  constructor() {
+  constructor(changeAppPeriodMode, changeAppDataTypeMode) {
+    this.changeAppPeriodMode = changeAppPeriodMode;
+    this.changeAppDataTypeMode = changeAppDataTypeMode;
+    this.controlPanelComponent = new ControlPanelComponent(
+      this.changeAppPeriodMode, this.changeAppDataTypeMode,
+    );
     this.mapContainer = '';
     this.getSummary = {};
     this.activeCountryCode = '';
@@ -12,10 +17,7 @@ export default class MapComponent {
     this.isAbsoluteData = true;
     this.isTotal = true;
     this.markers = [];
-    this.dataValue = ['confirmed', 'deaths', 'recovered'];
-    this.controlPanelComponent = new ControlPanelComponent(
-      this.changeAppPeriodMode, this.changeAppDataTypeMode,
-    );
+    this.dataValue = ['Confirmed', 'Deaths', 'Recovered'];
     this.mapOptions = {
       center: [45, 40],
       zoom: 2,
@@ -155,16 +157,14 @@ export default class MapComponent {
     };
     btnDeaths.addTo(this.map);
     this.map.on('click', (event) => {
-      console.log(this.map);
+      // console.log(this.map);
       console.log(event.originalEvent.target.innerHTML);
       let btnCurrentIndex = event.originalEvent.target.innerHTML;
-      this.dataToPopup = this.getDataToPopup(btnCurrentIndex);
-      console.log(this.dataToPopup);
-      this.showMarkers(markersData);
-      // setInterval(function () {
-      //   markers.clearLayers();
-      //   createMarkers();
-      // }, 10000);
+      if (this.dataValue.includes(btnCurrentIndex)) {
+        this.dataToPopup = this.getDataToPopup(btnCurrentIndex);
+        this.showMarkers(markersData);
+      }
+
       return this.dataToPopup;
     })
     // L.DomEvent
