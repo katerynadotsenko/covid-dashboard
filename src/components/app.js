@@ -3,7 +3,7 @@ import MapComponent from './map.component.js';
 import CountryListComponent from './country-list.component.js';
 import ChartComponent from './chart.component.js';
 import { getWorldDataByLastDays, getCountryDataByLastDays, getSummary, getDataforMarkers } from '../service.js';
-import StatisticsComponent from './statistics.component.js';
+import TableComponent from './table.component.js';
 import state from '../helpers/state.js';
 
 export default class App {
@@ -13,7 +13,10 @@ export default class App {
       (isTotalMode) => this.changeAppPeriodMode(isTotalMode),
       (isAbsoluteMode) => this.changeAppDataTypeMode(isAbsoluteMode),
     );
-    this.statisticsComponent = new StatisticsComponent();
+    this.tableComponent = new TableComponent(
+      (isTotalMode) => this.changeAppPeriodMode(isTotalMode),
+      (isAbsoluteMode) => this.changeAppDataTypeMode(isAbsoluteMode),
+    );
     this.countryListComponent = new CountryListComponent(
       (countryCode, population) => this.updateAppByActiveCountry(countryCode, population),
     );
@@ -41,13 +44,14 @@ export default class App {
     this.chartData = await getWorldDataByLastDays();
     this.chartComponent.updateChartData(this.chartData);
 
-    const statisticsNode = this.statisticsComponent.render(this.getSummary);
-    rightContainer.append(statisticsNode);
+    const tableNode = this.tableComponent.render(this.getSummary);
+    rightContainer.append(tableNode);
+
     const chartNode = this.chartComponent.render();
     rightContainer.append(chartNode);
     appContainer.append(rightContainer);
 
-    [chartNode, statisticsNode, countryListNode].forEach(c => {
+    [chartNode, tableNode, countryListNode].forEach(c => {
       c.classList.add('container');
       c.addEventListener('mouseover', changeDefOver);
       c.addEventListener('mouseout', changeDefOut);
@@ -79,11 +83,13 @@ export default class App {
   changeAppPeriodMode(isTotal) {
     this.isTotal = isTotal;
     this.chartComponent.changePeriodMode(isTotal);
+    this.tableComponent.changePeriodMode(isTotal);
   }
 
   changeAppDataTypeMode(isAbsoluteData) {
     this.isAbsoluteData = isAbsoluteData;
     this.chartComponent.changeDataTypeMode(isAbsoluteData);
+    this.tableComponent.changeDataTypeMode(isAbsoluteData);
   }
 
   setActiveCountry(countryCode) {
@@ -98,6 +104,7 @@ export default class App {
     }
     if (!this.chartData.status) {
       this.chartComponent.updateChartByActiveCountry(this.chartData.timeline, population);
+      this.tableComponent.updateTableByActiveCountry(this.chartData.timeline, population);
     }
   }
 }

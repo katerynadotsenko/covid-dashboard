@@ -32,7 +32,7 @@ export default class MapComponent {
 
   createMap(markersData, summary) {
     const countries = this.getSummary.Countries;
-    console.log(this.getSummary);
+    //console.log(this.getSummary);
     let iconOptions = {
       iconUrl: '/assets/i.webp',
       iconSize: [9, 9]

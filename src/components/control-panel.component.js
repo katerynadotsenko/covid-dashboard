@@ -1,20 +1,31 @@
-function addSwitch(parentNode, textFirst = '', textSecond = '', onChange) {
+function addSwitch(parentNode, id, textFirst = '', textSecond = '', onChange) {
   const switchElement = document.createElement('label');
   switchElement.classList.add('switch');
   const checkbox = document.createElement('input');
   checkbox.setAttribute('type', 'checkbox');
+  checkbox.setAttribute('id', id);
   const switchSlider = document.createElement('span');
   switchSlider.classList.add('switch__slider');
+  switchSlider.setAttribute('id', `switch__slider-${id}`);
   switchSlider.innerText = textFirst;
   switchElement.append(checkbox);
   switchElement.append(switchSlider);
 
   switchElement.addEventListener('change', (e) => {
     onChange(!e.target.checked);
+    const controlPanels = document.querySelectorAll(`.control-panel #${e.target.id}`);
+    const switchSliders = document.querySelectorAll(`.control-panel #switch__slider-${e.target.id}`);
+    controlPanels.forEach((item) => {
+      item.checked = e.target.checked;
+    });
     if (e.target.checked) {
-      switchSlider.innerText = textSecond;
+      switchSliders.forEach((item) => {
+        item.innerText = textSecond;
+      });
     } else {
-      switchSlider.innerText = textFirst;
+      switchSliders.forEach((item) => {
+        item.innerText = textFirst;
+      });
     }
   });
   if (parentNode) {
@@ -43,8 +54,8 @@ export default class ControlPanelComponent {
   addControlPanel(parentNode) {
     const controlPanel = document.createElement('div');
     controlPanel.classList.add('control-panel');
-    const switchPeriodElement = addSwitch(controlPanel, 'Total', 'Last Day', (isTotal) => this.onChangePeriodSwitch(isTotal));
-    const switchDataTypeElement = addSwitch(controlPanel, 'Absolute', 'Per 100k', (isAbsoluteData) => this.onChangeDataTypeSwitch(isAbsoluteData));
+    const switchPeriodElement = addSwitch(controlPanel, 'period', 'Total', 'Last Day', (isTotal) => this.onChangePeriodSwitch(isTotal));
+    const switchDataTypeElement = addSwitch(controlPanel, 'type', 'Absolute', 'Per 100k', (isAbsoluteData) => this.onChangeDataTypeSwitch(isAbsoluteData));
     controlPanel.append(switchPeriodElement);
     controlPanel.append(switchDataTypeElement);
     if (parentNode) {
