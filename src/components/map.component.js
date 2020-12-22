@@ -17,7 +17,7 @@ export default class MapComponent {
       this.changeAppPeriodMode, this.changeAppDataTypeMode,
     );
     this.mapOptions = {
-      center: [45, 2],
+      center: [45, 40],
       zoom: 2,
       worldCopyJump: true,
       minZoom: 1,
@@ -92,7 +92,7 @@ export default class MapComponent {
         }
         let popup = L.popup()
           .setLatLng(event.latlng)
-          .setContent(layer.feature.properties.name + '<br>' + totalValue)
+          .setContent(layer.feature.properties.name + '<br>' + this.dataToPopup + ': ' + totalValue)
           .openOn(layer._map);
         //L.openPopup(popup);
       });
@@ -102,13 +102,47 @@ export default class MapComponent {
     let info = L.control();
     info.onAdd = function (map) {
       this._div = L.DomUtil.create('div', 'info');
-      this.update();
+      let iconSize = [6, 7, 10, 13, 16, 20, 23, 26, 30, 33]
+      let grades = ["<1k", "1k-3k", "3k-20k", "20k-50k", "50k-100k", "100k-250k", "250k-400k", "400k-500k", "500k-1000k", ">1000k"],
+        labels = ['<strong>Size markers</strong>'],
+        from, to;
+      //iterate through grades and create a scaled circle and label for each
+      for (var i = 0; i < grades.length; i++) {
+        from = grades[i];
+        to = grades[i + 1];
+        labels.push(
+          '<div class="legend"> <img src= "/assets/coronavirusMarker.webp" style="background-size:contain ;  width:' + iconSize[i] + 'px;height:' + iconSize[i] + 'px; border-radius: 100%; "></img> ' + from + '</div>');
+      }
+      this._div.innerHTML = labels.join(' ');
+
+      // this.update();
       return this._div;
     };
-    info.update = function (props) {
-      this._div.innerHTML = 'Legend <br> 11111 <br> 2222 <br> 3333';
-    };
+    // info.update = function (props) {
+    //   this._div.innerHTML = 'Legend <br> <i class="circlepadding" style="width: 5px;"></i> <1000 <br> 1000-3000 <br> 3000-20000';
+    // };
     info.addTo(this.map);
+
+    // if (sumData <= 1000) {
+    //   iconSize = [6, 6];
+    // } else if (sumData > 1000 && sumData <= 3000) {
+    //   iconSize = [7, 7];
+    // } else if (sumData > 3000 && sumData <= 20000) {
+    //   iconSize = [10, 10];
+    // } else if (sumData > 20000 && sumData <= 50000) {
+    //   iconSize = [13, 13];
+    // } else if (sumData > 50000 && sumData <= 100000) {
+    //   iconSize = [16, 16];
+    // } else if (sumData > 100000 && sumData <= 250000) {
+    //   iconSize = [20, 20];
+    // } else if (sumData > 250000 && sumData <= 400000) {
+    //   iconSize = [23, 23];
+    // } else if (sumData > 400000 && sumData <= 500000) {
+    //   iconSize = [26, 26];
+    // } else if (sumData > 500000 && sumData <= 1000000) {
+    //   iconSize = [30, 30];
+    // } else {
+    //   iconSize = [33, 33];
 
 
     let btnDeaths = L.control({
@@ -200,7 +234,6 @@ export default class MapComponent {
         //console.log(this.markers);
       }
     }
-
   }
 
   getDataToPopup(currentIndex) {
