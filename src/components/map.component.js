@@ -9,8 +9,9 @@ export default class MapComponent {
     this.activeCountryCode = '';
     this.dataToPopup = 'Confirmed';
     this.currentIndex = 'Confirmed';
-    this.isAbsoluteData = false;
+    this.isAbsoluteData = true;
     this.isTotal = true;
+    this.markers = [];
     this.dataValue = ['confirmed', 'deaths', 'recovered'];
     this.controlPanelComponent = new ControlPanelComponent(
       this.changeAppPeriodMode, this.changeAppDataTypeMode,
@@ -76,7 +77,7 @@ export default class MapComponent {
         let currentCountry = layer.feature.properties.adm0_a3;
         let totalValue = 'No data';
         for (let key in countries) {
-          console.log(countries[key])
+          // console.log(countries[key])
           if (countries[key].alpha3Code === currentCountry || countries[key].Country === layer.feature.properties.name_long) {
             if (this.isTotal) {
               totalValue = countries[key]['Total' + this.dataToPopup];
@@ -107,7 +108,7 @@ export default class MapComponent {
     info.update = function (props) {
       this._div.innerHTML = 'Legend <br> 11111 <br> 2222 <br> 3333';
     };
-    info.addTo(map);
+    info.addTo(this.map);
 
 
     let btnDeaths = L.control({
@@ -125,6 +126,7 @@ export default class MapComponent {
       let btnCurrentIndex = event.originalEvent.target.innerHTML;
       this.dataToPopup = this.getDataToPopup(btnCurrentIndex);
       console.log(this.dataToPopup);
+      this.showMarkers(markersData);
       // setInterval(function () {
       //   markers.clearLayers();
       //   createMarkers();
@@ -156,7 +158,20 @@ export default class MapComponent {
     };
     btnConfirmed.addTo(this.map);
 
+    this.showMarkers(markersData);
 
+  }
+
+  showMarkers(markersData) {
+
+    /// удаляем маркеры
+    if (this.markers) {
+      for (let i = 0; i < this.markers.length; i++) {
+        this.map.removeLayer(this.markers[i]);
+      }
+    }
+
+    /// Добавляем маркеры
     let iconOptions = {
       iconUrl: '/assets/i.webp',
       iconSize: [9, 9]
@@ -181,13 +196,12 @@ export default class MapComponent {
         let coordinates = [markersData[key].coordinates.latitude, markersData[key].coordinates.longitude];
         let marker = L.marker(coordinates, this.markerOptions);
         this.map.addLayer(marker);
+        this.markers.push(marker);
+        //console.log(this.markers);
       }
     }
 
   }
-  // showMarkers(marker) {
-  //   this.map.addLayer(marker);
-  // }
 
   getDataToPopup(currentIndex) {
     let dataToPopup = '';
