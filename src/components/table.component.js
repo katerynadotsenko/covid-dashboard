@@ -76,7 +76,9 @@ export default class TableComponent {
   }
 
   updateTableByActiveCountry(data, population) {
-    this.population = population;
+    if (population) {
+      this.population = population;
+    }
     this.isWorld = false;
     if (data) {
       this.updateTableData(data);

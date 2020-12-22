@@ -32,7 +32,7 @@ export default class App {
 
     this.getSummary = await getSummary();
     const countryListNode = this.countryListComponent.render(this.getSummary);
-    appContainer.append(countryListNode);
+    appContainer.insertBefore(countryListNode, appContainer.childNodes[0]);
 
     this.markersData = await getDataforMarkers();
     const mapNode = this.mapComponent.render(this.markersData, this.getSummary);

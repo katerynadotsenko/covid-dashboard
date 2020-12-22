@@ -1,13 +1,21 @@
 /* eslint-disable */
 import euCountries from '../helpers/eu-countries.js';
+import ControlPanelComponent from './control-panel.component.js';
 export default class MapComponent {
 
   constructor() {
     this.mapContainer = '';
     this.getSummary = {};
+    this.activeCountryCode = '';
+    this.dataToPopup = 'Confirmed';
+    this.currentIndex = 'Confirmed';
     this.isAbsoluteData = true;
     this.isTotal = true;
+    this.markers = [];
     this.dataValue = ['confirmed', 'deaths', 'recovered'];
+    this.controlPanelComponent = new ControlPanelComponent(
+      this.changeAppPeriodMode, this.changeAppDataTypeMode,
+    );
     this.mapOptions = {
       center: [45, 2],
       zoom: 2,
@@ -18,73 +26,77 @@ export default class MapComponent {
         position: 'topleft'
       }
     }
-  }
 
-  render(markersData, summary) {
-    this.getSummary = summary;
-    // this.mapContainer = document.createElement('div');
-    // this.mapContainer.setAttribute('id', 'map');
-    // this.mapContainer.style.width = '1024px';
-    // this.mapContainer.style.height = '768px';
-    this.createMap(markersData);
-    return this.mapContainer;
-  }
+    this.map = new L.map('map', this.mapOptions);
 
-  createMap(markersData, summary) {
-    const countries = this.getSummary.Countries;
-    //console.log(this.getSummary);
-    let iconOptions = {
-      iconUrl: '/assets/i.webp',
-      iconSize: [9, 9]
-    }
-    let customIcon = L.icon(iconOptions);
-    this.markerOptions = {
-      // title: "MyLocation",
-      clickable: true,
-      icon: customIcon
-    }
-
-    let map = new L.map('map', this.mapOptions);
-    // let layer = new L.TileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
-    let layer = new L.TileLayer('https://api.mapbox.com/styles/v1/general-m/ckij3fcw82az119mgnjhkeu2m/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiZ2VuZXJhbC1tIiwiYSI6ImNraWozZjdrdjJkbWYycnBlNmw5N3RhNjgifQ.awd7EvjA7RM8Dl4Xb_5dBA');
-    map.addLayer(layer);
-
-    // Подсветка стран через geojson
-    map.createPane('labels');
-    map.getPane('labels').style.zIndex = 650;
-    map.getPane('labels').style.pointerEvents = 'none';
-    let positron = L.tileLayer('https://api.mapbox.com/styles/v1/general-m/ckij3fcw82az119mgnjhkeu2m/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiZ2VuZXJhbC1tIiwiYSI6ImNraWozZjdrdjJkbWYycnBlNmw5N3RhNjgifQ.awd7EvjA7RM8Dl4Xb_5dBA').addTo(map);
-    let positronLabels = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}.png', {
-      pane: 'labels'
-    }).addTo(map);
     let styleGeojson = {
       "color": "#556577",
       "weight": 2,
       "opacity": 0.65
     };
-    let geojson = L.geoJson(euCountries, {
-      style: styleGeojson
-    }).addTo(map);
 
-    geojson.eachLayer(function (layer) {
-      // layer.bindPopup(layer.feature.properties.name);
-      // console.log(layer.feature.properties.name);
-      layer.on('mousemove', function (event) {
+    this.geojson = L.geoJson(euCountries, {
+      style: styleGeojson
+    }).addTo(this.map);
+
+  }
+
+  render(markersData, summary) {
+    this.getSummary = summary;
+    this.createMap(markersData);
+
+    // this.getMarkers(markersData);
+    // this.getDataToPopup();
+    this.controlPanelComponent.addControlPanel(this.mapContainer);
+    return this.mapContainer;
+  }
+
+  createMap(markersData, summary, marker) {
+    const countries = this.getSummary.Countries;
+
+    //const map = new L.map('map', this.mapOptions);
+    // let layer = new L.TileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
+    let layer = new L.TileLayer('https://api.mapbox.com/styles/v1/general-m/ckij3fcw82az119mgnjhkeu2m/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiZ2VuZXJhbC1tIiwiYSI6ImNraWozZjdrdjJkbWYycnBlNmw5N3RhNjgifQ.awd7EvjA7RM8Dl4Xb_5dBA');
+    this.map.addLayer(layer);
+
+    // Подсветка стран через geojson
+    this.map.createPane('labels');
+    this.map.getPane('labels').style.zIndex = 650;
+    this.map.getPane('labels').style.pointerEvents = 'none';
+    let positron = L.tileLayer('https://api.mapbox.com/styles/v1/general-m/ckij3fcw82az119mgnjhkeu2m/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiZ2VuZXJhbC1tIiwiYSI6ImNraWozZjdrdjJkbWYycnBlNmw5N3RhNjgifQ.awd7EvjA7RM8Dl4Xb_5dBA').addTo(this.map);
+    let positronLabels = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}.png', {
+      pane: 'labels'
+    }).addTo(this.map);
+
+
+    this.geojson.eachLayer((layer) => {
+      layer.on('click', function (event) {
+        this.activeCountryCode = layer.feature.properties.adm0_a3;
+      })
+      layer.on('mousemove', (event) => {
         let currentCountry = layer.feature.properties.adm0_a3;
-        let totalConfirmed = 'No data';
+        let totalValue = 'No data';
         for (let key in countries) {
+          // console.log(countries[key])
           if (countries[key].alpha3Code === currentCountry || countries[key].Country === layer.feature.properties.name_long) {
-            totalConfirmed = countries[key].TotalConfirmed;
+            if (this.isTotal) {
+              totalValue = countries[key]['Total' + this.dataToPopup];
+            }
+            else {
+              totalValue = countries[key]['New' + this.dataToPopup];
+            }
+            if (!this.isAbsoluteData) {
+              totalValue = ((totalValue / countries[key].population) * 100000).toFixed(3)
+            }
           }
         }
         let popup = L.popup()
           .setLatLng(event.latlng)
-          .setContent(layer.feature.properties.name + '<br>' + totalConfirmed)
-          .openOn(map);
-        this.openPopup(popup);
+          .setContent(layer.feature.properties.name + '<br>' + totalValue)
+          .openOn(layer._map);
+        //L.openPopup(popup);
       });
     });
-
 
     /// Легенда карты
     let info = L.control();
@@ -96,7 +108,7 @@ export default class MapComponent {
     info.update = function (props) {
       this._div.innerHTML = 'Legend <br> 11111 <br> 2222 <br> 3333';
     };
-    info.addTo(map);
+    info.addTo(this.map);
 
 
     let btnDeaths = L.control({
@@ -107,9 +119,19 @@ export default class MapComponent {
       btnDeaths.innerHTML = 'Deaths';
       return btnDeaths;
     };
-    btnDeaths.addTo(map);
-    map.on('click', function (event) {
-      console.log(event.target);
+    btnDeaths.addTo(this.map);
+    this.map.on('click', (event) => {
+      console.log(this.map);
+      console.log(event.originalEvent.target.innerHTML);
+      let btnCurrentIndex = event.originalEvent.target.innerHTML;
+      this.dataToPopup = this.getDataToPopup(btnCurrentIndex);
+      console.log(this.dataToPopup);
+      this.showMarkers(markersData);
+      // setInterval(function () {
+      //   markers.clearLayers();
+      //   createMarkers();
+      // }, 10000);
+      return this.dataToPopup;
     })
     // L.DomEvent
     //   .addListener(btnDeaths, 'click', function (event) {
@@ -124,7 +146,7 @@ export default class MapComponent {
       btnRecovered.innerHTML = 'Recovered';
       return btnRecovered;
     };
-    btnRecovered.addTo(map);
+    btnRecovered.addTo(this.map);
 
     let btnConfirmed = L.control({
       position: 'bottomleft'
@@ -134,13 +156,34 @@ export default class MapComponent {
       btnConfirmed.innerHTML = 'Confirmed';
       return btnConfirmed;
     };
-    btnConfirmed.addTo(map);
+    btnConfirmed.addTo(this.map);
 
+    this.showMarkers(markersData);
 
+  }
 
+  showMarkers(markersData) {
+
+    /// удаляем маркеры
+    if (this.markers) {
+      for (let i = 0; i < this.markers.length; i++) {
+        this.map.removeLayer(this.markers[i]);
+      }
+    }
+
+    /// Добавляем маркеры
+    let iconOptions = {
+      iconUrl: '/assets/i.webp',
+      iconSize: [9, 9]
+    }
+    let customIcon = L.icon(iconOptions);
+    this.markerOptions = {
+      // title: "MyLocation",
+      clickable: true,
+      icon: customIcon
+    }
     for (let key in markersData) {
-      // let currentValue = 'confirmed';
-      const iconSize = this.generateIconSize(markersData[key].stats.confirmed);
+      const iconSize = this.generateIconSize(markersData[key].stats[this.dataToPopup.toLowerCase()]);
       const iconOptions = {
         iconUrl: '/assets/coronavirusMarker.webp',
         iconSize: iconSize
@@ -151,15 +194,32 @@ export default class MapComponent {
       let sumRecovered = markersData[key].stats.recovered;
       if (markersData[key].coordinates.latitude !== '') {
         let coordinates = [markersData[key].coordinates.latitude, markersData[key].coordinates.longitude];
-        // console.log(coordinates)
         let marker = L.marker(coordinates, this.markerOptions);
-
-        map.addLayer(marker);
-        // marker.bindPopup(`${markersData[key].province}<br> deaths: ${sumDeaths} <br> confirmed: ${sumConfirmed} <br> recovered ${sumRecovered}`).openPopup();
-        // map.addLayer(marker);
+        this.map.addLayer(marker);
+        this.markers.push(marker);
+        //console.log(this.markers);
       }
     }
 
+  }
+
+  getDataToPopup(currentIndex) {
+    let dataToPopup = '';
+    switch (currentIndex) {
+      case 'Confirmed':
+        dataToPopup = 'Confirmed';
+        break;
+      case 'Deaths':
+        dataToPopup = 'Deaths';
+        break;
+      case 'Recovered':
+        dataToPopup = 'Recovered';
+        break;
+      default:
+        break;
+    }
+
+    return dataToPopup;
   }
 
   generateIconSize(sumData) {

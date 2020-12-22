@@ -108,7 +108,7 @@ const Keyboard = {
     document.body.appendChild(this.elements.main);
 
     // Automatically use keyboard for elements with .use-keyboard-input
-    document.querySelector(".use-keyboard-input").focus();
+    //document.querySelector(".use-keyboard-input").focus();
     if(!lang){
     document.querySelectorAll(".use-keyboard-input").forEach(element => {
         var down = false;

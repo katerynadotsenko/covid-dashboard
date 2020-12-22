@@ -1,16 +1,36 @@
 * {
-    --wrapper-bg: #000;
-    --bg: #404040;
-    --line: #5c5c5c;
+    --wrapper-bg: #081217;
+    --bg: #1a2637;
+    --bg2: #111822;
+    --line: #556577;
     --recovered: #70a800;
     --confirmed: #e60000;
-    --cur: #1061a6;
-    --text: #d6d6d6;
+    --cur: #081217;
+    --text: #788a9e;
     --white: #fff;
+    --hover: rgb(146, 162, 179);
 
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg2);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--line);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--wrapper-bg);
 }
 
 body {
@@ -59,12 +79,12 @@ body {
 
 .countries_wrapper {
     position: relative;
-    width: 300px;
+    max-width: 350px;
     background-color: var(--bg);
 }
 
 .countries_container {
-    height: 600px;
+    height: calc(100vh - 100px);
     overflow-y: scroll;
 }
 
@@ -72,6 +92,7 @@ body {
     width: 100%;
     padding: 10px;
     box-sizing: border-box;
+    margin-bottom: 15px;
 }
 
 .country>* {
@@ -94,7 +115,9 @@ body {
     color: var(--confirmed);
 }
 
-.country_name {}
+.country_name {
+    color: var(--text);
+}
 
 .cur {
     background-color: var(--cur);
@@ -225,6 +248,11 @@ canvas.chartjs-render-monitor {
     cursor: pointer;
 }
 
+.map-control-button:hover {
+    cursor: pointer;
+    background-color: var(--hover);
+}
+
 .switch {
     position: relative;
     display: inline-block;
@@ -305,6 +333,9 @@ input:checked+.switch__slider:before {
     border-radius: 50%;
     right: 0;
     top: 0;
+    width: 30px;
+    height: 30px;
+    margin: 10px;
     cursor: pointer;
 }
 
