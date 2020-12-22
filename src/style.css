@@ -7,6 +7,7 @@
     --cur: #1061a6;
     --text: #d6d6d6;
     --white: #fff;
+    --hover:rgb(146, 162, 179);
 
     margin: 0;
     padding: 0;
@@ -182,7 +183,10 @@ canvas.chartjs-render-monitor {
     border-radius: 5px;
     cursor: pointer;
 }
-
+.map-control-button:hover {
+    cursor: pointer;
+    background-color: var(--hover);
+}
 .switch {
     position: relative;
     display: inline-block;

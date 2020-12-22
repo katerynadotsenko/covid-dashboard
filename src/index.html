@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./style.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="shortcut icon" href="/assets/virus_corona_coronavirus_icon_140419.svg" type="image/svg">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
         integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
         crossorigin="" />
@@ -20,7 +21,10 @@
 
 <body>
     <div class="app-container">
-        <div id="map" style="width:1000px; height:700px;"></div>
+        <div class="map-inner">
+            <div id="map" style="width:1000px; height:700px;"></div>
+        </div>
+
     </div>
     <script type="module" src="./index.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.bundle.min.js"></script>
