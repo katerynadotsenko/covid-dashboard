@@ -7,10 +7,10 @@ export default class MapComponent {
     this.mapContainer = '';
     this.getSummary = {};
     this.activeCountryCode = '';
-    this.dataToPopup = 'confirmed';
+    this.dataToPopup = 'Confirmed';
     this.currentIndex = 'Confirmed';
-    this.isAbsoluteData = true;
-    this.isTotal = false;
+    this.isAbsoluteData = false;
+    this.isTotal = true;
     this.dataValue = ['confirmed', 'deaths', 'recovered'];
     this.controlPanelComponent = new ControlPanelComponent(
       this.changeAppPeriodMode, this.changeAppDataTypeMode,
@@ -25,6 +25,18 @@ export default class MapComponent {
         position: 'topleft'
       }
     }
+
+    this.map = new L.map('map', this.mapOptions);
+
+    let styleGeojson = {
+      "color": "#556577",
+      "weight": 2,
+      "opacity": 0.65
+    };
+
+    this.geojson = L.geoJson(euCountries, {
+      style: styleGeojson
+    }).addTo(this.map);
 
   }
 
@@ -41,55 +53,47 @@ export default class MapComponent {
   createMap(markersData, summary, marker) {
     const countries = this.getSummary.Countries;
 
-    const map = new L.map('map', this.mapOptions);
+    //const map = new L.map('map', this.mapOptions);
     // let layer = new L.TileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
     let layer = new L.TileLayer('https://api.mapbox.com/styles/v1/general-m/ckij3fcw82az119mgnjhkeu2m/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiZ2VuZXJhbC1tIiwiYSI6ImNraWozZjdrdjJkbWYycnBlNmw5N3RhNjgifQ.awd7EvjA7RM8Dl4Xb_5dBA');
-    map.addLayer(layer);
+    this.map.addLayer(layer);
 
     // Подсветка стран через geojson
-    map.createPane('labels');
-    map.getPane('labels').style.zIndex = 650;
-    map.getPane('labels').style.pointerEvents = 'none';
-    let positron = L.tileLayer('https://api.mapbox.com/styles/v1/general-m/ckij3fcw82az119mgnjhkeu2m/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiZ2VuZXJhbC1tIiwiYSI6ImNraWozZjdrdjJkbWYycnBlNmw5N3RhNjgifQ.awd7EvjA7RM8Dl4Xb_5dBA').addTo(map);
+    this.map.createPane('labels');
+    this.map.getPane('labels').style.zIndex = 650;
+    this.map.getPane('labels').style.pointerEvents = 'none';
+    let positron = L.tileLayer('https://api.mapbox.com/styles/v1/general-m/ckij3fcw82az119mgnjhkeu2m/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiZ2VuZXJhbC1tIiwiYSI6ImNraWozZjdrdjJkbWYycnBlNmw5N3RhNjgifQ.awd7EvjA7RM8Dl4Xb_5dBA').addTo(this.map);
     let positronLabels = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}.png', {
       pane: 'labels'
-    }).addTo(map);
-    let styleGeojson = {
-      "color": "#556577",
-      "weight": 2,
-      "opacity": 0.65
-    };
-    let geojson = L.geoJson(euCountries, {
-      style: styleGeojson
-    }).addTo(map);
+    }).addTo(this.map);
 
 
-    geojson.eachLayer(function (layer) {
+    this.geojson.eachLayer((layer) => {
       layer.on('click', function (event) {
         this.activeCountryCode = layer.feature.properties.adm0_a3;
-
       })
-      layer.on('mousemove', function (event) {
+      layer.on('mousemove', (event) => {
         let currentCountry = layer.feature.properties.adm0_a3;
-        let totalConfirmed = 'No data';
-
+        let totalValue = 'No data';
         for (let key in countries) {
           console.log(countries[key])
           if (countries[key].alpha3Code === currentCountry || countries[key].Country === layer.feature.properties.name_long) {
             if (this.isTotal) {
-              totalConfirmed = countries[key].TotalConfirmed;
+              totalValue = countries[key]['Total' + this.dataToPopup];
             }
             else {
-              totalConfirmed = countries[key].NewConfirmed;
+              totalValue = countries[key]['New' + this.dataToPopup];
             }
-
+            if (!this.isAbsoluteData) {
+              totalValue = ((totalValue / countries[key].population) * 100000).toFixed(3)
+            }
           }
         }
         let popup = L.popup()
           .setLatLng(event.latlng)
-          .setContent(layer.feature.properties.name + '<br>' + totalConfirmed)
-          .openOn(map);
-        this.openPopup(popup);
+          .setContent(layer.feature.properties.name + '<br>' + totalValue)
+          .openOn(layer._map);
+        //L.openPopup(popup);
       });
     });
 
@@ -114,9 +118,9 @@ export default class MapComponent {
       btnDeaths.innerHTML = 'Deaths';
       return btnDeaths;
     };
-    btnDeaths.addTo(map);
-    map.on('click', (event) => {
-      console.log(map);
+    btnDeaths.addTo(this.map);
+    this.map.on('click', (event) => {
+      console.log(this.map);
       console.log(event.originalEvent.target.innerHTML);
       let btnCurrentIndex = event.originalEvent.target.innerHTML;
       this.dataToPopup = this.getDataToPopup(btnCurrentIndex);
@@ -140,7 +144,7 @@ export default class MapComponent {
       btnRecovered.innerHTML = 'Recovered';
       return btnRecovered;
     };
-    btnRecovered.addTo(map);
+    btnRecovered.addTo(this.map);
 
     let btnConfirmed = L.control({
       position: 'bottomleft'
@@ -150,7 +154,7 @@ export default class MapComponent {
       btnConfirmed.innerHTML = 'Confirmed';
       return btnConfirmed;
     };
-    btnConfirmed.addTo(map);
+    btnConfirmed.addTo(this.map);
 
 
     let iconOptions = {
@@ -164,7 +168,7 @@ export default class MapComponent {
       icon: customIcon
     }
     for (let key in markersData) {
-      const iconSize = this.generateIconSize(markersData[key].stats[this.dataToPopup]);
+      const iconSize = this.generateIconSize(markersData[key].stats[this.dataToPopup.toLowerCase()]);
       const iconOptions = {
         iconUrl: '/assets/coronavirusMarker.webp',
         iconSize: iconSize
@@ -176,7 +180,7 @@ export default class MapComponent {
       if (markersData[key].coordinates.latitude !== '') {
         let coordinates = [markersData[key].coordinates.latitude, markersData[key].coordinates.longitude];
         let marker = L.marker(coordinates, this.markerOptions);
-        map.addLayer(marker);
+        this.map.addLayer(marker);
       }
     }
 
@@ -189,13 +193,13 @@ export default class MapComponent {
     let dataToPopup = '';
     switch (currentIndex) {
       case 'Confirmed':
-        dataToPopup = 'confirmed';
+        dataToPopup = 'Confirmed';
         break;
       case 'Deaths':
-        dataToPopup = 'deaths';
+        dataToPopup = 'Deaths';
         break;
       case 'Recovered':
-        dataToPopup = 'recovered';
+        dataToPopup = 'Recovered';
         break;
       default:
         break;
