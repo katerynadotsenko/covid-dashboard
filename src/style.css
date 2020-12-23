@@ -246,7 +246,8 @@ canvas.chartjs-render-monitor {
 .info,
 .map-control-button {
     padding: 6px 8px;
-    font: 10px/12px Arial, Helvetica, sans-serif;
+    font: 10px/12px Verdana, Geneva, Tahoma, sans-serif ;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
     background: var(--white);
     opacity: 0.8;
     box-shadow: 0 0 15px var(--text);
@@ -256,6 +257,8 @@ canvas.chartjs-render-monitor {
 
 .map-control-button:hover {
     cursor: pointer;
+   
+    transform: scale(1.1);
     background-color: var(--hover);
 }
 
