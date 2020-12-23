@@ -22,6 +22,8 @@ export default class App {
     );
     this.countryListComponent = new CountryListComponent(
       (countryCode, population) => this.updateAppByActiveCountry(countryCode, population),
+      (isTotalMode) => this.changeAppPeriodMode(isTotalMode),
+      (isAbsoluteMode) => this.changeAppDataTypeMode(isAbsoluteMode),
     );
     this.chartData = [];
     this.activeCountry = '';
@@ -87,12 +89,14 @@ export default class App {
     this.isTotal = isTotal;
     this.chartComponent.changePeriodMode(isTotal);
     this.tableComponent.changePeriodMode(isTotal);
+    this.countryListComponent.changePeriodMode(isTotal);
   }
 
   changeAppDataTypeMode(isAbsoluteData) {
     this.isAbsoluteData = isAbsoluteData;
     this.chartComponent.changeDataTypeMode(isAbsoluteData);
     this.tableComponent.changeDataTypeMode(isAbsoluteData);
+    this.countryListComponent.changeDataTypeMode(isAbsoluteData);
   }
 
   setActiveCountry(countryCode) {
