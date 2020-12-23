@@ -81,10 +81,11 @@ body {
     position: relative;
     width: 350px;
     background-color: var(--bg);
+    color: var(--text);
 }
 
 .countries_container {
-    height: calc(100vh - 100px);
+    height: calc(100vh - 250px);
     overflow-y: scroll;
 }
 

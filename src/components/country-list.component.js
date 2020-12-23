@@ -1,13 +1,27 @@
 /* eslint-disable import/extensions */
-import { appendChildren } from '../helpers/utils.js';
+import ControlPanelComponent from './control-panel.component.js';
+import { appendChildren, normalizeDate, addButton, addElement } from '../helpers/utils.js';
 import state from '../helpers/state.js';
 
 export default class CountryListComponent {
-  constructor(updateAppByActiveCountry) {
+  constructor(updateAppByActiveCountry, changeAppPeriodMode, changeAppDataTypeMode) {
     this.updateAppByActiveCountry = updateAppByActiveCountry;
+    this.changeAppPeriodMode = changeAppPeriodMode;
+    this.changeAppDataTypeMode = changeAppDataTypeMode;
+    this.controlPanelComponent = new ControlPanelComponent(
+      this.changeAppPeriodMode, this.changeAppDataTypeMode,
+    );
+    this.countriesWrapper = '';
+    this.isTotal = true;
+    this.isAbsoluteData = true;
+    this.isWorld = true;
+    this.statisticsCategories = ['Confirmed', 'Deaths', 'Recovered'];
+    this.activeStatisticsCategory = 0;
   }
 
   render(summary) {
+    this.summary = summary
+    
     const countries = summary.Countries;
     this.countries = {};
     this.cur = -1;
@@ -69,7 +83,95 @@ export default class CountryListComponent {
 
       this.countriesElements[c.CountryCode] = countryElement;
     });
-    appendChildren(this.countriesContainer, Object.values(this.countriesElements));
+    appendChildren(this.countriesContainer, Object.values(this.countriesElements));  
+
+
+    const chartNavigation = addElement(
+      this.countriesWrapper,
+      'div',
+      ['chart-navigation'],
+      '',
+    );
+
+    addButton(
+      chartNavigation,
+      ['button'],
+      `<span class='material-icons'>
+      arrow_left
+      </span>`,
+      () => this.changeActiveStatisticsCategory(this.activeStatisticsCategory - 1),
+    );
+
+    this.chartInfoPanel = addElement(
+      chartNavigation,
+      'span',
+      ['chart-navigation__info'],
+      `Cumulative ${this.statisticsCategories[this.activeStatisticsCategory]}`,
+    );
+
+    addButton(
+      chartNavigation,
+      ['button'],
+      `<span class='material-icons'>
+      arrow_right
+      </span>`,
+      () => this.changeActiveStatisticsCategory(this.activeStatisticsCategory + 1),
+    );
+
+    this.controlPanelComponent.addControlPanel(this.countriesWrapper);
     return this.countriesWrapper;
+  }
+
+  updateTableData(data) {
+    this.tableData = data;
+  }
+
+  updateTableByWorldData() {
+    this.summary.Countries.forEach((c) => {
+      const txt = document.querySelector(`#${c.CountryCode} > .cases`);
+      if(txt) txt.innerHTML = parseFloat((c[`${this.isTotal? 'Total': 'New'}${this.statisticsCategories[this.activeStatisticsCategory]}`] / (this.isAbsoluteData ? 1 : c.population / 100000)).toFixed(2));
+    });
+    const search = document.querySelector('.search');
+    if (search.value) {
+      appendChildren(this.countriesContainer, Object.values(this.countriesElements).filter((c) => this.countries[c.id].Country.toUpperCase().startsWith(search.value.toUpperCase())));
+    } else {
+      appendChildren(this.countriesContainer, Object.values(this.countriesElements));
+    }
+  }
+
+  changePeriodMode(isTotal) {
+    this.isTotal = isTotal;
+    this.updateTableByWorldData();
+  }
+
+  changeDataTypeMode(isAbsoluteData) {
+    this.isAbsoluteData = isAbsoluteData;
+    this.updateTableByWorldData();
+  }
+
+
+  changeChartInfoText() {
+    const extraTextFirst = this.isTotal ? 'Cumulative' : 'Daily';
+    const extraTextLast = this.isAbsoluteData ? '' : 'per 100,000 population';
+    this.chartInfoPanel.innerText = `${this.statisticsCategories[this.activeStatisticsCategory]}`;
+  }
+
+  changeActiveStatisticsCategory(categoryNumber) {
+    let nextCategoryNumber = categoryNumber;
+    if (nextCategoryNumber < 0) {
+      nextCategoryNumber = 0;
+      return;
+    }
+    if (nextCategoryNumber > this.statisticsCategories.length - 1) {
+      nextCategoryNumber = this.statisticsCategories.length - 1;
+      return;
+    }
+    this.activeStatisticsCategory = nextCategoryNumber;
+    this.onChangeStatisticsCategory();
+  }
+
+  onChangeStatisticsCategory() {
+    this.changeChartInfoText();
+    this.updateTableByWorldData();
   }
 }
