@@ -87,12 +87,14 @@ export default class App {
     this.isTotal = isTotal;
     this.chartComponent.changePeriodMode(isTotal);
     this.tableComponent.changePeriodMode(isTotal);
+    this.mapComponent.changePeriodMode(isTotal);
   }
 
   changeAppDataTypeMode(isAbsoluteData) {
     this.isAbsoluteData = isAbsoluteData;
     this.chartComponent.changeDataTypeMode(isAbsoluteData);
     this.tableComponent.changeDataTypeMode(isAbsoluteData);
+    this.mapComponent.changeDataTypeMode(isAbsoluteData);
   }
 
   setActiveCountry(countryCode) {
