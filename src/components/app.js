@@ -11,6 +11,7 @@ export default class App {
     this.mapComponent = new MapComponent(
       (isTotalMode) => this.changeAppPeriodMode(isTotalMode),
       (isAbsoluteMode) => this.changeAppDataTypeMode(isAbsoluteMode),
+      (countryCode, population) => this.updateAppByActiveCountry(countryCode, population)
     );
     this.chartComponent = new ChartComponent(
       (isTotalMode) => this.changeAppPeriodMode(isTotalMode),
@@ -23,7 +24,8 @@ export default class App {
     this.countryListComponent = new CountryListComponent(
       (countryCode, population) => this.updateAppByActiveCountry(countryCode, population),
       (isTotalMode) => this.changeAppPeriodMode(isTotalMode),
-      (isAbsoluteMode) => this.changeAppDataTypeMode(isAbsoluteMode),
+      (isAbsoluteMode) => this.changeAppDataTypeMode(isAbsoluteMode)
+
     );
     this.chartData = [];
     this.activeCountry = '';
