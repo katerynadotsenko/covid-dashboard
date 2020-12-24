@@ -11,6 +11,7 @@ export default class App {
     this.mapComponent = new MapComponent(
       (isTotalMode) => this.changeAppPeriodMode(isTotalMode),
       (isAbsoluteMode) => this.changeAppDataTypeMode(isAbsoluteMode),
+      (countryCode, population) => this.updateAppByActiveCountry(countryCode, population)
     );
     this.chartComponent = new ChartComponent(
       (isTotalMode) => this.changeAppPeriodMode(isTotalMode),
@@ -23,7 +24,8 @@ export default class App {
     this.countryListComponent = new CountryListComponent(
       (countryCode, population) => this.updateAppByActiveCountry(countryCode, population),
       (isTotalMode) => this.changeAppPeriodMode(isTotalMode),
-      (isAbsoluteMode) => this.changeAppDataTypeMode(isAbsoluteMode),
+      (isAbsoluteMode) => this.changeAppDataTypeMode(isAbsoluteMode)
+
     );
     this.chartData = [];
     this.activeCountry = '';
@@ -65,7 +67,7 @@ export default class App {
       fullscreenToggle.classList.add('fullscreenToggle');
       const fullscreenIcon = document.createElement('img');
       fullscreenIcon.classList.add('fullscreenIcon');
-      fullscreenIcon.src = '../../assets/icon-fullscreen.png';
+      fullscreenIcon.src = '../../covid-dashboard/assets/icon-fullscreen.png';
       fullscreenToggle.appendChild(fullscreenIcon);
       c.appendChild(fullscreenToggle);
 
