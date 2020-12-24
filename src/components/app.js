@@ -8,10 +8,7 @@ import state from '../helpers/state.js';
 
 export default class App {
   constructor() {
-    this.mapComponent = new MapComponent(
-      (isTotalMode) => this.changeAppPeriodMode(isTotalMode),
-      (isAbsoluteMode) => this.changeAppDataTypeMode(isAbsoluteMode),
-    );
+
     this.chartComponent = new ChartComponent(
       (isTotalMode) => this.changeAppPeriodMode(isTotalMode),
       (isAbsoluteMode) => this.changeAppDataTypeMode(isAbsoluteMode),
@@ -25,6 +22,13 @@ export default class App {
       (isTotalMode) => this.changeAppPeriodMode(isTotalMode),
       (isAbsoluteMode) => this.changeAppDataTypeMode(isAbsoluteMode),
     );
+
+    this.mapComponent = new MapComponent(
+      (isTotalMode) => this.changeAppPeriodMode(isTotalMode),
+      (isAbsoluteMode) => this.changeAppDataTypeMode(isAbsoluteMode),
+      (countryCode, population) => this.updateAppByActiveCountry(countryCode, population)
+    );
+
     this.chartData = [];
     this.activeCountry = '';
     this.isTotal = true;
@@ -106,6 +110,7 @@ export default class App {
   }
 
   async updateAppByActiveCountry(countryCode, population) {
+    console.log("countryCode - ", countryCode);
     this.setActiveCountry(countryCode);
     this.chartData = await getCountryDataByLastDays(countryCode);
     if (this.chartData.status === 404) {
