@@ -3,7 +3,8 @@ import euCountries from '../helpers/eu-countries.js';
 import ControlPanelComponent from './control-panel.component.js';
 export default class MapComponent {
 
-  constructor(changeAppPeriodMode, changeAppDataTypeMode) {
+  constructor(changeAppPeriodMode, changeAppDataTypeMode, updateAppByActiveCountry) {
+    this.updateAppByActiveCountry = updateAppByActiveCountry;
     this.changeAppPeriodMode = changeAppPeriodMode;
     this.changeAppDataTypeMode = changeAppDataTypeMode;
     this.controlPanelComponent = new ControlPanelComponent(
@@ -14,6 +15,7 @@ export default class MapComponent {
     this.activeCountry = '';
     this.dataToPopup = 'Confirmed';
     this.currentIndex = 'Confirmed';
+    this.isWorld = true;
     this.isAbsoluteData = true;
     this.isTotal = true;
     this.markers = [];
@@ -44,11 +46,10 @@ export default class MapComponent {
   }
 
   render(markersData, summary) {
-    this.controlPanelComponent.addControlPanel(this.mapContainer);
+    const mapInner = document.querySelector('.map-inner');
+    this.controlPanelComponent.addControlPanel(mapInner);
     this.getSummary = summary;
-    this.createMap(markersData);
-    // this.getMarkers(markersData);
-    // this.getDataToPopup();
+    this.createMap(markersData);;
 
     return this.mapContainer;
   }
@@ -56,25 +57,35 @@ export default class MapComponent {
   createMap(markersData, summary, marker) {
     const countries = this.getSummary.Countries;
 
-    //const map = new L.map('map', this.mapOptions);
-    // let layer = new L.TileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
-    let layer = new L.TileLayer('https://api.mapbox.com/styles/v1/general-m/ckij3fcw82az119mgnjhkeu2m/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiZ2VuZXJhbC1tIiwiYSI6ImNraWozZjdrdjJkbWYycnBlNmw5N3RhNjgifQ.awd7EvjA7RM8Dl4Xb_5dBA');
+
+    let layer = new L.TileLayer('https://api.mapbox.com/styles/v1/general-m/ckiv2v1dn3gg019qoyietqrqr/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiZ2VuZXJhbC1tIiwiYSI6ImNraWozZjdrdjJkbWYycnBlNmw5N3RhNjgifQ.awd7EvjA7RM8Dl4Xb_5dBA');
     this.map.addLayer(layer);
 
     // Подсветка стран через geojson
     this.map.createPane('labels');
     this.map.getPane('labels').style.zIndex = 650;
     this.map.getPane('labels').style.pointerEvents = 'none';
-    let positron = L.tileLayer('https://api.mapbox.com/styles/v1/general-m/ckij3fcw82az119mgnjhkeu2m/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiZ2VuZXJhbC1tIiwiYSI6ImNraWozZjdrdjJkbWYycnBlNmw5N3RhNjgifQ.awd7EvjA7RM8Dl4Xb_5dBA').addTo(this.map);
+    let positron = L.tileLayer('https://api.mapbox.com/styles/v1/general-m/ckiv2v1dn3gg019qoyietqrqr/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiZ2VuZXJhbC1tIiwiYSI6ImNraWozZjdrdjJkbWYycnBlNmw5N3RhNjgifQ.awd7EvjA7RM8Dl4Xb_5dBA').addTo(this.map);
     let positronLabels = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}.png', {
       pane: 'labels'
     }).addTo(this.map);
 
 
     this.geojson.eachLayer((layer) => {
-      layer.on('click', function (event) {
-        this.activeCountry = layer.feature.properties.adm0_a3;
-        return this.activeCountry;
+      layer.on('click', (event) => {
+        let population;
+        let activeCountry = layer.feature.properties.iso_a2;
+        // let activeCountry = layer.feature.properties.iso_a2;
+        // console.log(layer.feature.properties.iso_a2);
+        for (let key in countries) {
+          if (countries[key].CountryCode === activeCountry) {
+            //console.log(countries[key].population);
+            population = countries[key].population;
+          }
+        }
+        console.log(this);
+        this.updateAppByActiveCountry(activeCountry, population);
+        // return this.activeCountry;
       })
       layer.on('mousemove', (event) => {
         let currentCountry = layer.feature.properties.adm0_a3;
@@ -97,7 +108,6 @@ export default class MapComponent {
           .setLatLng(event.latlng)
           .setContent(layer.feature.properties.name + '<br>' + this.dataToPopup + ': ' + totalValue)
           .openOn(layer._map);
-        //L.openPopup(popup);
       });
     });
 
@@ -116,7 +126,6 @@ export default class MapComponent {
           '<div class="legend"> <img src= "/assets/coronavirusMarker.webp" style="background-size:contain ;  width:' + iconSize[i] + 'px;height:' + iconSize[i] + 'px; border-radius: 100%; "></img> ' + from + '</div>');
       }
       this._div.innerHTML = labels.join(' ');
-      // this.update();
       return this._div;
     };
 
@@ -132,7 +141,6 @@ export default class MapComponent {
     };
     btnDeaths.addTo(this.map);
     this.map.on('click', (event) => {
-      console.log(event.originalEvent.target.innerHTML);
       let btnCurrentIndex = event.originalEvent.target.innerHTML;
       if (this.dataValue.includes(btnCurrentIndex)) {
         this.dataToPopup = this.getDataToPopup(btnCurrentIndex);
@@ -165,6 +173,10 @@ export default class MapComponent {
 
   }
 
+  // updateAppByActiveCountry(countryCode, population) {
+  //   this.activeCountry = countryCode;
+  //   return this.activeCountry;
+  // }
   showMarkers(markersData) {
     /// удаляем маркеры
     if (this.markers) {
@@ -180,7 +192,6 @@ export default class MapComponent {
     }
     let customIcon = L.icon(iconOptions);
     this.markerOptions = {
-      // title: "MyLocation",
       clickable: true,
       icon: customIcon
     }
@@ -199,20 +210,20 @@ export default class MapComponent {
         let marker = L.marker(coordinates, this.markerOptions);
         this.map.addLayer(marker);
         this.markers.push(marker);
-        //console.log(this.markers);
+
       }
     }
   }
 
   changePeriodMode(isTotal) {
     this.isTotal = isTotal;
-    this.showMarkers(markersData);
+    // this.showMarkers(markersData);
 
   }
 
   changeDataTypeMode(isAbsoluteData) {
     this.isAbsoluteData = isAbsoluteData;
-    this.showMarkers(markersData);
+    // this.showMarkers(markersData);
 
   }
   getDataToPopup(currentIndex) {

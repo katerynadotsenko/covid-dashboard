@@ -21,7 +21,7 @@ export default class CountryListComponent {
 
   render(summary) {
     this.summary = summary
-    
+
     const countries = summary.Countries;
     this.countries = {};
     this.cur = -1;
@@ -83,7 +83,7 @@ export default class CountryListComponent {
 
       this.countriesElements[c.CountryCode] = countryElement;
     });
-    appendChildren(this.countriesContainer, Object.values(this.countriesElements));  
+    appendChildren(this.countriesContainer, Object.values(this.countriesElements));
 
 
     const chartNavigation = addElement(
@@ -129,7 +129,7 @@ export default class CountryListComponent {
   updateTableByWorldData() {
     this.summary.Countries.forEach((c) => {
       const txt = document.querySelector(`#${c.CountryCode} > .cases`);
-      if(txt) txt.innerHTML = parseFloat((c[`${this.isTotal? 'Total': 'New'}${this.statisticsCategories[this.activeStatisticsCategory]}`] / (this.isAbsoluteData ? 1 : c.population / 100000)).toFixed(2));
+      if (txt) txt.innerHTML = parseFloat((c[`${this.isTotal ? 'Total' : 'New'}${this.statisticsCategories[this.activeStatisticsCategory]}`] / (this.isAbsoluteData ? 1 : c.population / 100000)).toFixed(2));
     });
     const search = document.querySelector('.search');
     if (search.value) {
