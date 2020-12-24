@@ -113,7 +113,7 @@ export default class MapComponent {
         from = grades[i];
         to = grades[i + 1];
         labels.push(
-          '<div class="legend"> <img src= "../../assets/coronavirusMarker.webp" style="background-size:contain ;  width:' + iconSize[i] + 'px;height:' + iconSize[i] + 'px; border-radius: 100%; "></img> ' + from + '</div>');
+          '<div class="legend"> <img src= "../../covid-dashboard/assets/coronavirusMarker.webp" style="background-size:contain ;  width:' + iconSize[i] + 'px;height:' + iconSize[i] + 'px; border-radius: 100%; "></img> ' + from + '</div>');
       }
       this._div.innerHTML = labels.join(' ');
       // this.update();
@@ -175,7 +175,7 @@ export default class MapComponent {
 
     /// Добавляем маркеры
     let iconOptions = {
-      iconUrl: '../../assets/i.webp',
+      iconUrl: '../../covid-dashboard/assets/i.webp',
       iconSize: [9, 9]
     }
     let customIcon = L.icon(iconOptions);
@@ -187,7 +187,7 @@ export default class MapComponent {
     for (let key in markersData) {
       const iconSize = this.generateIconSize(markersData[key].stats[this.dataToPopup.toLowerCase()]);
       const iconOptions = {
-        iconUrl: '../../assets/coronavirusMarker.webp',
+        iconUrl: '../../covid-dashboard/assets/coronavirusMarker.webp',
         iconSize: iconSize
       };
       const customIcon = L.icon(iconOptions);

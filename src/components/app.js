@@ -65,7 +65,7 @@ export default class App {
       fullscreenToggle.classList.add('fullscreenToggle');
       const fullscreenIcon = document.createElement('img');
       fullscreenIcon.classList.add('fullscreenIcon');
-      fullscreenIcon.src = '../../assets/icon-fullscreen.png';
+      fullscreenIcon.src = '../../covid-dashboard/assets/icon-fullscreen.png';
       fullscreenToggle.appendChild(fullscreenIcon);
       c.appendChild(fullscreenToggle);
 
