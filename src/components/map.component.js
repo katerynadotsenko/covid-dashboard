@@ -48,15 +48,15 @@ export default class MapComponent {
   render(markersData, summary) {
     const mapInner = document.querySelector('.map-inner');
     // this.controlPanelComponent.addControlPanel(mapInner);
-    this.getSummary = summary;
-    this.createMap(markersData);;
 
+
+    this.getSummary = summary;
+    this.createMap(markersData);
     return this.mapContainer;
   }
 
   createMap(markersData, summary, marker) {
     const countries = this.getSummary.Countries;
-
 
     let layer = new L.TileLayer('https://api.mapbox.com/styles/v1/general-m/ckiv2v1dn3gg019qoyietqrqr/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiZ2VuZXJhbC1tIiwiYSI6ImNraWozZjdrdjJkbWYycnBlNmw5N3RhNjgifQ.awd7EvjA7RM8Dl4Xb_5dBA');
     this.map.addLayer(layer);
@@ -108,9 +108,13 @@ export default class MapComponent {
             }
           }
         }
-        let popup = L.popup()
+        let popup = L.popup({
+          closeButton: true,
+          autoClose: true,
+          className: "custom-popup"
+        })
           .setLatLng(event.latlng)
-          .setContent(layer.feature.properties.name + '<br>' + this.dataToPopup + ': ' + totalValue)
+          .setContent(`<u>${layer.feature.properties.name.toUpperCase()}</u>` + '<br>' + this.dataToPopup + `${this.isTotal ? ' total:' : ' last day:'}` + '<br>' + totalValue)
           .openOn(layer._map);
       });
     });
@@ -135,11 +139,28 @@ export default class MapComponent {
 
     info.addTo(this.map);
 
+
+    let switcherBtn = L.control({
+      position: 'bottomright'
+    });
+    switcherBtn.onAdd = function (map) {
+      let switcherBtn = L.DomUtil.create('div', ' switcher-button');
+
+      // btnDeaths.innerHTML = 'Deaths';
+      return switcherBtn;
+    };
+    switcherBtn.addTo(this.map);
+    const switcher = document.querySelector('.switcher-button');
+    console.log(switcher);
+
+    this.controlPanelComponent.addControlPanel(switcher);
+
+
     let btnDeaths = L.control({
       position: 'bottomleft'
     });
     btnDeaths.onAdd = function (map) {
-      let btnDeaths = L.DomUtil.create('div', 'map-control-button deaths-button');
+      let btnDeaths = L.DomUtil.create('div', 'map-control-button index deaths-button');
       btnDeaths.innerHTML = 'Deaths';
       return btnDeaths;
     };
@@ -157,7 +178,7 @@ export default class MapComponent {
       position: 'bottomleft'
     });
     btnRecovered.onAdd = function (map) {
-      let btnRecovered = L.DomUtil.create('div', 'map-control-button recovered-button');
+      let btnRecovered = L.DomUtil.create('div', 'map-control-button index recovered-button');
       btnRecovered.innerHTML = 'Recovered';
       return btnRecovered;
     };
@@ -167,7 +188,7 @@ export default class MapComponent {
       position: 'bottomleft'
     });
     btnConfirmed.onAdd = function (map) {
-      let btnConfirmed = L.DomUtil.create('div', 'map-control-button confirmed-button');
+      let btnConfirmed = L.DomUtil.create('div', 'map-control-button index confirmed-button');
       btnConfirmed.innerHTML = 'Confirmed';
       return btnConfirmed;
     };
@@ -177,10 +198,6 @@ export default class MapComponent {
 
   }
 
-  // updateAppByActiveCountry(countryCode, population) {
-  //   this.activeCountry = countryCode;
-  //   return this.activeCountry;
-  // }
   showMarkers(markersData) {
     /// удаляем маркеры
     if (this.markers) {
@@ -274,6 +291,4 @@ export default class MapComponent {
     }
     return iconSize;
   }
-
-
 }

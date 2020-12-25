@@ -9,6 +9,7 @@
     --text: #788a9e;
     --white: #fff;
     --hover: rgb(146, 162, 179);
+    --map-text:rgb(82, 56, 56);
 
     margin: 0;
     padding: 0;
@@ -249,17 +250,46 @@ canvas.chartjs-render-monitor {
     font: 10px/12px Verdana, Geneva, Tahoma, sans-serif ;
     font-family: Verdana, Geneva, Tahoma, sans-serif;
     background: var(--white);
+    color: var(--map-text);
     opacity: 0.8;
     box-shadow: 0 0 15px var(--text);
     border-radius: 5px;
     cursor: pointer;
 }
+.index {
+    font-size: 14px;
+}
+
+.custom-popup {    
+    font-size:12px;
+    font-weight: 600;    
+    border-radius: 30px;    
+}
+
+.leaflet-popup-content-wrapper,.leaflet-popup-tip {
+    margin: 10px !important;
+    background:var(--text) !important;
+    text-align: center;
+    opacity: 0.8;
+}
+
+.leaflet-popup-content {
+    text-align: center;
+    color:var(--map-text);
+   
+}
+
 
 .map-control-button:hover {
-    cursor: pointer;
-   
+    cursor: pointer;   
     transform: scale(1.1);
     background-color: var(--hover);
+}
+.switcher-button {
+    background-color:#081217;
+    color: white;
+    opacity: 0.9;
+    min-width: 80px;
 }
 
 .switch {
